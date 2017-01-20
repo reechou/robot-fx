@@ -1,0 +1,4 @@
+vendor/*
+robot-fx.ini
+logic/tools/order_check/order_check.ini
+logic/tools/order_check/order_check.ini_bak

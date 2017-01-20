@@ -1,0 +1,48 @@
+{
+	"ImportPath": "github.com/reechou/real-fx",
+	"GoVersion": "go1.6",
+	"GodepVersion": "v70",
+	"Deps": [
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.8.6-7-g9c060de",
+			"Rev": "9c060de643590dae45da9d7c26276463bfc46fa0"
+		},
+		{
+			"ImportPath": "github.com/go-ini/ini",
+			"Comment": "v0-54-g2e44421",
+			"Rev": "2e44421e256d82ebbf3d4d4fcabe8930b905eff3"
+		},
+		{
+			"ImportPath": "github.com/go-sql-driver/mysql",
+			"Comment": "v1.2-198-g0b58b37",
+			"Rev": "0b58b37b664c21f3010e836f1b931e1d0b0b0685"
+		},
+		{
+			"ImportPath": "github.com/go-xorm/builder",
+			"Rev": "1ec771cf39abb481edf666a1447f508113fa72e9"
+		},
+		{
+			"ImportPath": "github.com/go-xorm/core",
+			"Comment": "v0.5.6",
+			"Rev": "5bf745d7d163f4380e6c2bba8c4afa60534dd087"
+		},
+		{
+			"ImportPath": "github.com/go-xorm/xorm",
+			"Comment": "v0.5.6-25-g46eddd7",
+			"Rev": "46eddd769657a8b661328748c652e5c6d2d98d5b"
+		},
+		{
+			"ImportPath": "github.com/gorilla/context",
+			"Rev": "215affda49addc4c8ef7e2534915df2c8c35c6cd"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Rev": "8096f47503459bcc74d1f4c487b7e6e42e5746b5"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "6d3beaea10370160dea67f5c9327ed791afd5389"
+		}
+	]
+}

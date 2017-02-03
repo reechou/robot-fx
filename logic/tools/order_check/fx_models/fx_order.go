@@ -74,7 +74,7 @@ func GetFxOrderInfo(info *FxOrder) (bool, error) {
 		return false, fmt.Errorf("get fx order[%s] error: %v", info.OrderId, err)
 	}
 	if !has {
-		logrus.Errorf("get fx order[%s] has no this order.", info.OrderId)
+		logrus.Debugf("get fx order[%s] has no this order.", info.OrderId)
 		return false, nil
 	}
 	return true, nil

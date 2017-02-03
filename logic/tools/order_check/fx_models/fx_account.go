@@ -1,7 +1,6 @@
 package fx_models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/Sirupsen/logrus"

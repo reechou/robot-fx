@@ -65,7 +65,7 @@ func GetTaobaoOrder(info *TaobaoOrder) (bool, error) {
 		return false, fmt.Errorf("get taobao order[%s] error: %v", info.OrderId, err)
 	}
 	if !has {
-		logrus.Errorf("get taobao order[%s] has no this order.", info.OrderId)
+		logrus.Debugf("get taobao order[%s] has no this order.", info.OrderId)
 		return false, nil
 	}
 	return true, nil

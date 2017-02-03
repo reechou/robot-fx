@@ -14,7 +14,7 @@ type FxRobotAlimama struct {
 
 func GetFxRobotAlimamaList() ([]FxRobotAlimama, error) {
 	var fxRobotAlimamaList []FxRobotAlimama
-	err := x.Where("id = 0").Find(&fxRobotAlimamaList)
+	err := x.Where("id > 0").Find(&fxRobotAlimamaList)
 	if err != nil {
 		logrus.Errorf("get robot alimama list error: %v", err)
 		return nil, err

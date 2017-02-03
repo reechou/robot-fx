@@ -68,8 +68,13 @@ func (self *TaobaoOrderCheck) runCheck() {
 		logrus.Errorf("get fx robot alimama list error: %v", err)
 		return
 	}
+	hasChecked := make(map[string]int)
 	for _, v := range alimamaList {
+		if _, ok := hasChecked[v.Alimama]; ok {
+			continue
+		}
 		self.ParseAlimamaExcel(v.Alimama, t)
+		hasChecked[v.Alimama] = 1
 	}
 }
 
@@ -111,7 +116,7 @@ func (self *TaobaoOrderCheck) ParseAlimamaExcel(ali string, t int) {
 			logrus.Errorf("len(v)[%v] != 30", v)
 			continue
 		}
-		fmt.Println(len(v), v)
+		//fmt.Println(len(v), v)
 		if v[8] == ALIMAMA_TBK_PAYMENT_ORDER_STATUS_INVALID {
 			continue
 		}
@@ -126,6 +131,7 @@ func (self *TaobaoOrderCheck) ParseAlimamaExcel(ali string, t int) {
 		if !has {
 			continue
 		}
+		logrus.Debugf("valid order: %v", v)
 
 		payMoney, err := strconv.ParseFloat(v[12], 32)
 		if err != nil {

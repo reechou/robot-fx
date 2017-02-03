@@ -45,7 +45,7 @@ type Config struct {
 	Path    string
 	Logging bool
 	Version string
-	
+
 	FxDBInfo
 	SettlementCommission
 	WorkerInfo
@@ -82,7 +82,7 @@ func NewConfig() *Config {
 		}
 		c.SettlementCommission.LevelPer = append(c.SettlementCommission.LevelPer, vi)
 	}
-	
+
 	fmt.Println(c)
 
 	return c

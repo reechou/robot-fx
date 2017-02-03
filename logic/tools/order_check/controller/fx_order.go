@@ -3,7 +3,7 @@ package controller
 import (
 	"fmt"
 	"time"
-	
+
 	"github.com/Sirupsen/logrus"
 	"github.com/reechou/robot-fx/logic/tools/order_check/config"
 	"github.com/reechou/robot-fx/logic/tools/order_check/fx_models"
@@ -27,18 +27,18 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 		logrus.Errorf("create fx order error: %v", err)
 		return err
 	}
-	
+
 	if len(self.cfg.LevelPer) == 0 {
 		logrus.Errorf("please check config of level percentage")
 		return nil
 	}
-	
+
 	var levelReturns []float32
 	for i := 0; i < len(self.cfg.LevelPer); i++ {
 		lReturn := info.ReturnMoney * float32(self.cfg.LevelPer[i]) / 100.0 * float32(self.cfg.Score.EnlargeScale)
 		levelReturns = append(levelReturns, lReturn)
 	}
-	
+
 	now := time.Now().Unix()
 	var recordList []fx_models.FxOrderWaitSettlementRecord
 	recordList = append(recordList, fx_models.FxOrderWaitSettlementRecord{
@@ -51,7 +51,7 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 		Level:       0,
 		CreatedAt:   now,
 	})
-	
+
 	fxAccount := &fx_models.FxAccount{
 		UnionId: info.UnionId,
 	}
@@ -65,7 +65,7 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 		logrus.Errorf("create order no this owern account[%s]", info.UnionId)
 		return fmt.Errorf("create order no this owern account[%s]", info.UnionId)
 	}
-	
+
 	unionId := fxAccount.Superior
 	for i := 1; i < len(levelReturns); i++ {
 		// get upper
@@ -85,7 +85,7 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 			logrus.Debugf("create wait settlement no this account[%s]", unionId)
 			break
 		}
-		
+
 		recordList = append(recordList, fx_models.FxOrderWaitSettlementRecord{
 			AccountId:   fxAccount.ID,
 			UnionId:     unionId,
@@ -96,15 +96,15 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 			Level:       int64(i),
 			CreatedAt:   now,
 		})
-		
+
 		unionId = fxAccount.Superior
 	}
-	
+
 	err = fx_models.CreateFxOrderWaitSettlementRecordList(recordList)
 	if err != nil {
 		logrus.Errorf("create fx order[%d] wait settlement record list error: %v", info, err)
 		return err
 	}
-	
+
 	return nil
 }

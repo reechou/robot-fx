@@ -3,7 +3,7 @@ package models
 import (
 	"fmt"
 	"time"
-	
+
 	"github.com/Sirupsen/logrus"
 )
 
@@ -19,18 +19,18 @@ func CreateFxRobotAlimama(info *FxRobotAlimama) (err error) {
 	if info.RobotWX == "" || info.Alimama == "" {
 		return fmt.Errorf("fx robot[%s] alimama[%s] cannot be nil.", info.RobotWX, info.Alimama)
 	}
-	
+
 	now := time.Now().Unix()
 	info.CreatedAt = now
 	info.UpdatedAt = now
-	
+
 	_, err = x.Insert(info)
 	if err != nil {
 		logrus.Errorf("create robot[%s] alimama[%s] error: %v", info.RobotWX, info.Alimama, err)
 		return err
 	}
 	logrus.Infof("create robot[%s] alimama[%s] success.", info.RobotWX, info.Alimama)
-	
+
 	return
 }
 
@@ -45,4 +45,3 @@ func GetRobotAlimama(info *FxRobotAlimama) (bool, error) {
 	}
 	return true, nil
 }
-

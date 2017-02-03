@@ -3,7 +3,7 @@ package fx_models
 import (
 	"fmt"
 	"time"
-	
+
 	"github.com/Sirupsen/logrus"
 )
 
@@ -19,12 +19,12 @@ type TaobaoOrder struct {
 	GoodsPrice          float32 `xorm:"not null default 0.00 float(9,2)"`
 	OrderState          int     `xorm:"not null default 0 int"`
 	OrderType           string  `xorm:"not null default '' varchar(32)"`
-	IncomeRatio         float32 `xorm:"not null default 0.00 float(9,2)"` // 收入比率
-	SplitRatio          float32 `xorm:"not null default 0.00 float(9,2)"` // 分成比率
+	IncomeRatio         float32 `xorm:"not null default 0.00 float(9,2)"`                             // 收入比率
+	SplitRatio          float32 `xorm:"not null default 0.00 float(9,2)"`                             // 分成比率
 	PayPrice            float32 `xorm:"not null default 0.00 float(9,2) unique(uni_taobao_order_id)"` // 付款金额
-	PredictingEffect    float32 `xorm:"not null default 0.00 float(9,2)"` // 预估效果
-	SettlementMoney     float32 `xorm:"not null default 0.00 float(9,2)"` // 结算金额
-	EstimatedIncome     float32 `xorm:"not null default 0.00 float(9,2)"` // 预估收入
+	PredictingEffect    float32 `xorm:"not null default 0.00 float(9,2)"`                             // 预估效果
+	SettlementMoney     float32 `xorm:"not null default 0.00 float(9,2)"`                             // 结算金额
+	EstimatedIncome     float32 `xorm:"not null default 0.00 float(9,2)"`                             // 预估收入
 	SettlementTime      string  `xorm:"not null default '' varchar(32)"`
 	CommissionRate      float32 `xorm:"not null default 0.00 float(9,2)"`
 	CommissionMoney     float32 `xorm:"not null default 0.00 float(9,2)"`
@@ -47,14 +47,14 @@ func CreateTaobaoOrder(info *TaobaoOrder) error {
 	now := time.Now().Unix()
 	info.CreatedAt = now
 	info.UpdatedAt = now
-	
+
 	_, err := x.Insert(info)
 	if err != nil {
 		logrus.Errorf("create taobao order error: %v", err)
 		return err
 	}
 	logrus.Infof("create taobao order id[%s] success.", info.OrderId)
-	
+
 	return nil
 }
 

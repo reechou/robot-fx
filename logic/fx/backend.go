@@ -1,8 +1,8 @@
 package fx
 
 import (
-	"github.com/reechou/robot-fx/logic/models"
 	"github.com/reechou/robot-fx/logic/ext"
+	"github.com/reechou/robot-fx/logic/models"
 )
 
 type fxAccountBackend interface {
@@ -42,7 +42,7 @@ type fxOrderBackend interface {
 }
 
 type fxWithdrawalBackend interface {
-	CreateWithdrawalRecord(info *models.WithdrawalRecord) error
+	CreateWithdrawalRecord(info *models.WithdrawalRecord, fxAccount *models.FxAccount) (error, bool)
 	GetWithdrawalRecordListCount(unionId string, status int64) (int64, error)
 	GetWithdrawalRecordListCountById(accountId int64) (int64, error)
 	GetWithdrawalRecordList(unionId string, offset, num, status int64) ([]models.WithdrawalRecord, error)

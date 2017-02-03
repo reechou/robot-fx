@@ -74,7 +74,7 @@ func (fxr *FXRouter) updateFxBaseInfo(ctx context.Context, w http.ResponseWriter
 	rsp := &FxResponse{Code: RspCodeOK}
 
 	fxAccount := &models.FxAccount{
-		Name:  req.Name,
+		Name: req.Name,
 	}
 	if err := fxr.backend.UpdateFxAccountBaseInfo(fxAccount); err != nil {
 		logrus.Errorf("Error update fx base info: %v", err)
@@ -208,14 +208,14 @@ func (fxr *FXRouter) getFxAccountRank(ctx context.Context, w http.ResponseWriter
 	if err := utils.ParseForm(r); err != nil {
 		return err
 	}
-	
+
 	req := &getFxAccountRankReq{}
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		return err
 	}
-	
+
 	rsp := &FxResponse{Code: RspCodeOK}
-	
+
 	list, err := fxr.backend.GetFxAccountRank(req.Offset, req.Num)
 	if err != nil {
 		logrus.Errorf("Error get fx account rank list: %v", err)
@@ -224,7 +224,6 @@ func (fxr *FXRouter) getFxAccountRank(ctx context.Context, w http.ResponseWriter
 	} else {
 		rsp.Data = list
 	}
-	
+
 	return utils.WriteJSON(w, http.StatusOK, rsp)
 }
-

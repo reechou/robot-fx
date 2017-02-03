@@ -84,7 +84,7 @@ func (daemon *Daemon) CreateFxOrder(info *models.FxOrder) error {
 			Level:       int64(i),
 			CreatedAt:   now,
 		})
-		
+
 		unionId = fxAccount.Superior
 	}
 

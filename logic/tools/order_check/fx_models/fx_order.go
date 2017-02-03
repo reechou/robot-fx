@@ -53,7 +53,7 @@ func CreateFxOrder(info *FxOrder) error {
 	if info.UnionId == "" || info.OrderId == "" || info.GoodsId == "" {
 		return fmt.Errorf("fx order union_id[%s] order_id[%s] goods_id[%s] cannot be nil.", info.UnionId, info.OrderId, info.GoodsId)
 	}
-	
+
 	now := time.Now().Unix()
 	info.CreatedAt = now
 	info.UpdatedAt = now
@@ -63,7 +63,7 @@ func CreateFxOrder(info *FxOrder) error {
 		return err
 	}
 	logrus.Infof("fx order union_id[%s] order_id[%s] create success.", info.UnionId, info.OrderId)
-	
+
 	return nil
 }
 

@@ -16,14 +16,14 @@ func (fxr *FXRouter) createRobotAlimama(ctx context.Context, w http.ResponseWrit
 	if err := utils.ParseForm(r); err != nil {
 		return err
 	}
-	
+
 	req := &CreateRobotAlimamaReq{}
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		return err
 	}
-	
+
 	rsp := &FxResponse{Code: RspCodeOK}
-	
+
 	robotAlimama := &models.FxRobotAlimama{
 		RobotWX: req.RobotWX,
 		Alimama: req.Alimama,
@@ -33,7 +33,7 @@ func (fxr *FXRouter) createRobotAlimama(ctx context.Context, w http.ResponseWrit
 		logrus.Errorf("create robot alimama error: %v", err)
 		return err
 	}
-	
+
 	return utils.WriteJSON(w, http.StatusOK, rsp)
 }
 

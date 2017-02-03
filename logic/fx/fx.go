@@ -1,8 +1,8 @@
 package fx
 
 import (
-	"github.com/reechou/robot-fx/router"
 	"github.com/reechou/robot-fx/config"
+	"github.com/reechou/robot-fx/router"
 )
 
 type FXRouter struct {
@@ -28,7 +28,7 @@ func (fxr *FXRouter) initRoutes() {
 	fxr.routes = []router.Route{
 		router.NewPostRoute("/create_robot_alimamam", fxr.createRobotAlimama),
 		router.NewPostRoute("/robot_call", fxr.robotCall),
-		
+
 		// about fx account
 		router.NewPostRoute("/fx/create_fx_account", fxr.createFxAccount),
 		router.NewPostRoute("/fx/create_fx_salesman", fxr.createFxSalesman),

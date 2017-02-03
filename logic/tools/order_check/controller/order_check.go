@@ -48,7 +48,7 @@ func (ocw *OrderCheck) Stop() {
 
 func (ocw *OrderCheck) Run() {
 	logrus.Debugf("start run fx order check...")
-	
+
 	ocw.runCheck()
 	for {
 		select {

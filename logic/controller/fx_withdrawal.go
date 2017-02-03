@@ -1,48 +1,36 @@
 package controller
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/reechou/robot-fx/logic/models"
 )
 
-func (daemon *Daemon) CreateWithdrawalRecord(info *models.WithdrawalRecord) error {
+// return error, ifSystemError
+func (daemon *Daemon) CreateWithdrawalRecord(info *models.WithdrawalRecord, fxAccount *models.FxAccount) (error, bool) {
 	if info.WithdrawalMoney < float32(daemon.cfg.WithdrawalPolicy.MinimumWithdrawal) {
-		return ErrWithdrawalMinimum
+		return ErrWithdrawalMinimum, false
 	}
 
-	fxAccount := &models.FxAccount{
-		UnionId: info.UnionId,
-	}
-	has, err := models.GetFxAccount(fxAccount)
-	if err != nil {
-		logrus.Errorf("create withdrawal record error: %v", err)
-		return err
-	}
-	if !has {
-		logrus.Errorf("create withdrawal record get fx account error: no this account[%s]", info.UnionId)
-		return fmt.Errorf("create withdrawal record get fx account error: no this account[%s]", info.UnionId)
-	}
 	if fxAccount.CanWithdrawals < info.WithdrawalMoney {
-		return ErrWithdrawalLimitBalance
+		return ErrWithdrawalLimitBalance, false
 	}
 
 	monthCount, err := models.GetMonthWithdrawalRecord(info.UnionId)
 	if err != nil {
 		logrus.Errorf("get month withdrawal record error: %v", err)
-		return err
+		return err, true
 	}
 	if monthCount >= int64(daemon.cfg.WithdrawalPolicy.MonthWithdrawalTime) {
-		return ErrWithdrawalOverMonthLimit
+		return ErrWithdrawalOverMonthLimit, false
 	}
 
 	if daemon.cfg.WithdrawalPolicy.IfWithdrawalCheck {
 		err = models.MinusFxAccountMoney(info.WithdrawalMoney, fxAccount)
 		if err != nil {
 			logrus.Errorf("withdrawal money[%f] with account[%v] error: %v", info.WithdrawalMoney, fxAccount, err)
-			return err
+			return err, true
 		}
 
 		info.AccountId = fxAccount.ID
@@ -54,7 +42,7 @@ func (daemon *Daemon) CreateWithdrawalRecord(info *models.WithdrawalRecord) erro
 		err = models.CreateWithdrawalRecord(info)
 		if err != nil {
 			logrus.Errorf("create withdrawal record error: %v", err)
-			return err
+			return err, true
 		}
 
 		h := models.FxAccountHistory{
@@ -95,11 +83,11 @@ func (daemon *Daemon) CreateWithdrawalRecord(info *models.WithdrawalRecord) erro
 		err = models.CreateWithdrawalRecord(info)
 		if err != nil {
 			logrus.Errorf("create withdrawal record error: %v", err)
-			return err
+			return err, true
 		}
 	}
 
-	return nil
+	return nil, false
 }
 
 func (daemon *Daemon) GetWithdrawalRecordListCount(unionId string, status int64) (int64, error) {

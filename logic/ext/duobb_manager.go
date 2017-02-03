@@ -40,7 +40,7 @@ func (we *DuobbManagerExt) GoodsSearch(info *GoodsSearchReq) (*GoodsSearchData, 
 		return nil, err
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
-	
+
 	rsp, err := we.client.Do(httpReq)
 	defer func() {
 		if rsp != nil {
@@ -54,7 +54,7 @@ func (we *DuobbManagerExt) GoodsSearch(info *GoodsSearchReq) (*GoodsSearchData, 
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var response GoodsSearchRsp
 	err = json.Unmarshal(rspBody, &response)
 	if err != nil {
@@ -65,6 +65,6 @@ func (we *DuobbManagerExt) GoodsSearch(info *GoodsSearchReq) (*GoodsSearchData, 
 		logrus.Errorf("goods search error: %v", response)
 		return nil, fmt.Errorf("goods search error: %v", response)
 	}
-	
+
 	return &response.Data, nil
 }

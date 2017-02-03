@@ -15,8 +15,7 @@ type WithdrawalRecord struct {
 	Name            string  `xorm:"not null default '' varchar(128)"` // 用户昵称
 	WithdrawalMoney float32 `xorm:"not null default 0.00 float(9,2)"`
 	Balance         float32 `xorm:"not null default 0.00 float(9,2)"`
-	OpenId          string  `xorm:"not null default '' varchar(128)"`
-	Status          int64   `xorm:"not null default 0 int"`
+	Status          int64   `xorm:"not null default 0 int index"`
 	CreatedAt       int64   `xorm:"not null default 0 int"`
 	UpdatedAt       int64   `xorm:"not null default 0 int index"`
 }

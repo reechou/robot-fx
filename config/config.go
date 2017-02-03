@@ -29,9 +29,10 @@ type Score struct {
 }
 
 type WithdrawalPolicy struct {
-	MonthWithdrawalTime int  // 月提现次数
-	MinimumWithdrawal   int  // 最低提现金额
-	IfWithdrawalCheck   bool // 是否自动提现
+	MonthWithdrawalTime int    // 月提现次数
+	MinimumWithdrawal   int    // 最低提现金额
+	IfWithdrawalCheck   bool   // 是否自动提现
+	NotifyPeople        string // 提现提醒客服
 }
 
 type WorkerInfo struct {

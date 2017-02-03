@@ -55,11 +55,11 @@ var (
 
 const (
 	DUOBB_GET_ALIMAMA_COOKIE_METHOD = "DuobbAccountService.GetAccountACFromAlimama"
-	
+
 	ROBOT_DEFAULT_GUIDE = "%s_微信群导购"
-	
+
 	ALIMAMA_GET_SELF_ADZONE_LIST = "http://pub.alimama.com/common/adzone/newSelfAdzone2.json?tag=29&itemId=541861440464&blockId=&t=%s&%s&pvid=10_%s_557_%s" // 时间 tb_token ip 时间
-	ALIMAMA_GET_GUIDE_LIST = "http://pub.alimama.com/common/site/generalize/guideList.json?t=%s&pvid=&%s&_input_charset=utf-8" // 时间 tb_token
+	ALIMAMA_GET_GUIDE_LIST       = "http://pub.alimama.com/common/site/generalize/guideList.json?t=%s&pvid=&%s&_input_charset=utf-8"                        // 时间 tb_token
 	// data: name=232&categoryId=14&account1=ReeZhou&t=1484316609213&pvid=&_tb_token_=O3KOWnejbEq
 	ALIMAMA_GUIDE_ADD = "http://pub.alimama.com/common/site/generalize/guideAdd.json"
 	// data: tag=29&gcid=8&siteid=20776376&selectact=add&newadzonename=aaaa&t=1484316694651&_tb_token_=O3KOWnejbEq&pvid=10_125.119.120.94_557_1484315728932

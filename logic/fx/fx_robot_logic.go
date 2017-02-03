@@ -282,7 +282,7 @@ func (fxr *FXRouter) robotGoodsSearch(req *ReceiveMsgInfo, rsp *CallbackMsgInfo)
 		rate = DEFAULT_RETURN_RATE
 	}
 	returnMoney := data.EndPrice * data.RlRate * rate / 10000.0
-	
+
 	if data.Amount != 0.0 {
 		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
 			WechatNick: req.BaseInfo.WechatNick,
@@ -290,7 +290,7 @@ func (fxr *FXRouter) robotGoodsSearch(req *ReceiveMsgInfo, rsp *CallbackMsgInfo)
 			NickName:   req.BaseInfo.FromNickName,
 			UserName:   req.BaseInfo.FromUserName,
 			MsgType:    MSG_TYPE_TEXT,
-			Msg:        fmt.Sprintf(CALLBACK_GOODS_SEARCH_SUCCESS, a.Name, data.Title, data.ZkPrice, data.EndPrice-returnMoney,
+			Msg: fmt.Sprintf(CALLBACK_GOODS_SEARCH_SUCCESS, a.Name, data.Title, data.ZkPrice, data.EndPrice-returnMoney,
 				data.Amount+returnMoney, data.Amount, returnMoney, data.Token),
 		})
 	} else {
@@ -300,14 +300,58 @@ func (fxr *FXRouter) robotGoodsSearch(req *ReceiveMsgInfo, rsp *CallbackMsgInfo)
 			NickName:   req.BaseInfo.FromNickName,
 			UserName:   req.BaseInfo.FromUserName,
 			MsgType:    MSG_TYPE_TEXT,
-			Msg:        fmt.Sprintf(CALLBACK_GOODS_SEARCH_NO_QUAN_SUCCESS, a.Name, data.Title, data.ZkPrice, data.EndPrice-returnMoney,
+			Msg: fmt.Sprintf(CALLBACK_GOODS_SEARCH_NO_QUAN_SUCCESS, a.Name, data.Title, data.ZkPrice, data.EndPrice-returnMoney,
 				returnMoney, data.Token),
 		})
 	}
-	
+
 	return nil
 }
 
 func (fxr *FXRouter) robotWithdrawal(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
+	a, err := fxr.getReqAccount(req)
+	if err != nil {
+		logrus.Errorf("get req account error: %v", err)
+		return err
+	}
+	wInfo := &models.WithdrawalRecord{
+		UnionId:         a.UnionId,
+		WithdrawalMoney: a.CanWithdrawals,
+	}
+	err, ifSystemErr := fxr.backend.CreateWithdrawalRecord(wInfo, a)
+	if err != nil {
+		if !ifSystemErr {
+			rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+				WechatNick: req.BaseInfo.WechatNick,
+				ChatType:   CHAT_TYPE_PEOPLE,
+				NickName:   req.BaseInfo.FromNickName,
+				UserName:   req.BaseInfo.FromUserName,
+				MsgType:    MSG_TYPE_TEXT,
+				Msg:        err.Error(),
+			})
+			return nil
+		}
+		logrus.Errorf("create withdrawal record error: %v", err)
+		return err
+	}
+	withdrawalMoney := wInfo.WithdrawalMoney / float32(fxr.cfg.Score.EnlargeScale)
+	rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+		WechatNick: req.BaseInfo.WechatNick,
+		ChatType:   CHAT_TYPE_PEOPLE,
+		NickName:   req.BaseInfo.FromNickName,
+		UserName:   req.BaseInfo.FromUserName,
+		MsgType:    MSG_TYPE_TEXT,
+		Msg: fmt.Sprintf(CALLBACK_WITHDRAWAL_SUCCESS, a.Name, a.CanWithdrawals, withdrawalMoney,
+			fxr.cfg.WithdrawalPolicy.MonthWithdrawalTime, fxr.cfg.WithdrawalPolicy.MinimumWithdrawal),
+	})
+	rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+		WechatNick: req.BaseInfo.WechatNick,
+		ChatType:   CHAT_TYPE_PEOPLE,
+		NickName:   fxr.cfg.WithdrawalPolicy.NotifyPeople,
+		MsgType:    MSG_TYPE_TEXT,
+		Msg: fmt.Sprintf(CALLBACK_WITHDRAWAL_NOTIFY, req.BaseInfo.WechatNick, a.Name, a.Wechat, withdrawalMoney,
+			time.Now().Format("2006-01-02 15:04:05")),
+	})
+
 	return nil
 }

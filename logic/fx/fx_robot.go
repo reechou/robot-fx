@@ -71,7 +71,9 @@ func (fxr *FXRouter) robotCall(ctx context.Context, w http.ResponseWriter, r *ht
 }
 
 func (fxr *FXRouter) robotHandleMsg(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
-	if strings.Contains(req.Msg, KEYWORD_USER_INFO) {
+	if strings.Contains(req.Msg, KEYWORD_HELP) {
+		return fxr.robotHelp(req, rsp)
+	} else if strings.Contains(req.Msg, KEYWORD_USER_INFO) {
 		return fxr.robotUserInfo(req, rsp)
 	} else if strings.Contains(req.Msg, KEYWORD_ORDER_INFO) {
 		return fxr.robotOrderList(req, rsp)

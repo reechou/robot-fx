@@ -52,6 +52,18 @@ func (fxr *FXRouter) getReqAccount(req *ReceiveMsgInfo) (*models.FxAccount, erro
 	return account, nil
 }
 
+func (fxr *FXRouter) robotHelp(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
+	rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+		WechatNick: req.BaseInfo.WechatNick,
+		ChatType:   CHAT_TYPE_PEOPLE,
+		NickName:   req.BaseInfo.FromNickName,
+		UserName:   req.BaseInfo.FromUserName,
+		MsgType:    MSG_TYPE_TEXT,
+		Msg:        CALLBACK_HELP,
+	})
+	return nil
+}
+
 func (fxr *FXRouter) robotSign(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
 	a, err := fxr.getReqAccount(req)
 	if err != nil {
@@ -341,7 +353,7 @@ func (fxr *FXRouter) robotWithdrawal(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) 
 		NickName:   req.BaseInfo.FromNickName,
 		UserName:   req.BaseInfo.FromUserName,
 		MsgType:    MSG_TYPE_TEXT,
-		Msg: fmt.Sprintf(CALLBACK_WITHDRAWAL_SUCCESS, a.Name, a.CanWithdrawals, withdrawalMoney,
+		Msg: fmt.Sprintf(CALLBACK_WITHDRAWAL_SUCCESS, a.Name, int64(a.CanWithdrawals), withdrawalMoney,
 			fxr.cfg.WithdrawalPolicy.MonthWithdrawalTime, fxr.cfg.WithdrawalPolicy.MinimumWithdrawal),
 	})
 	rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{

@@ -35,7 +35,7 @@ func (daemon *Daemon) CreateFxAccount(fxAccount *models.FxAccount) (int, error) 
 			return 0, err
 		}
 		h := models.FxAccountHistory{
-			UnionId:    superFxAccount.UnionId,
+			UnionId:    superFxAccount.WechatUnionId,
 			Score:      float32(daemon.cfg.Score.FollowScore),
 			ChangeType: int64(FX_HISTORY_TYPE_INVITE),
 			ChangeDesc: FxHistoryDescs[FX_HISTORY_TYPE_INVITE],
@@ -67,7 +67,7 @@ func (daemon *Daemon) UpdateFxAccountSignTime(fxAccount *models.FxAccount) (int6
 	}
 	if affected > 0 {
 		h := models.FxAccountHistory{
-			UnionId:    fxAccount.UnionId,
+			UnionId:    fxAccount.WechatUnionId,
 			Score:      float32(daemon.cfg.Score.SignScore),
 			ChangeType: int64(FX_HISTORY_TYPE_SIGN),
 			ChangeDesc: FxHistoryDescs[FX_HISTORY_TYPE_SIGN],

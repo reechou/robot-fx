@@ -117,11 +117,11 @@ func (sw *SettlementWorker) do(order *fx_models.FxOrder) {
 	//}
 
 	orderFxAccount := &fx_models.FxAccount{
-		UnionId: order.UnionId,
+		WechatUnionId: order.UnionId,
 	}
-	has, err = fx_models.GetFxAccount(orderFxAccount)
+	has, err = fx_models.GetFxAccountFromWxUnionId(orderFxAccount)
 	if err != nil {
-		logrus.Errorf("do settlement order[%v] in level[0] get fx account from union_id[%d] error: %v",
+		logrus.Errorf("do settlement order[%v] in level[0] get fx account from wx_union_id[%s] error: %v",
 			order, order.UnionId, err)
 		return
 	}
@@ -148,7 +148,7 @@ func (sw *SettlementWorker) do(order *fx_models.FxOrder) {
 	var historyList []fx_models.FxAccountHistory
 	historyList = append(historyList, fx_models.FxAccountHistory{
 		AccountId:  orderFxAccount.ID,
-		UnionId:    orderFxAccount.UnionId,
+		UnionId:    orderFxAccount.WechatUnionId,
 		Score:      levelReturns[0],
 		ChangeType: int64(FX_HISTORY_TYPE_ORDER_0),
 		ChangeDesc: FxHistoryDescs[FX_HISTORY_TYPE_ORDER_0],
@@ -157,20 +157,21 @@ func (sw *SettlementWorker) do(order *fx_models.FxOrder) {
 
 	var upperFxAccount *fx_models.FxAccount
 
+	// this unionId is always wx_union_id
 	unionId := orderFxAccount.Superior
 	for i := 1; i < len(levelReturns); i++ {
 		// get upper
 		fxAccount := &fx_models.FxAccount{
-			UnionId: unionId,
+			WechatUnionId: unionId,
 		}
-		has, err := fx_models.GetFxAccount(fxAccount)
+		has, err := fx_models.GetFxAccountFromWxUnionId(fxAccount)
 		if err != nil {
-			logrus.Errorf("do settlement order[%v] in level[%d] get fx account from union_id[%d] error: %v",
+			logrus.Errorf("do settlement order[%v] in level[%d] get fx account from wx_union_id[%s] error: %v",
 				order, i, unionId, err)
 			return
 		}
 		if !has {
-			logrus.Debugf("do settlement no this account[%s]", unionId)
+			logrus.Debugf("do settlement no this account of wx_union_id[%s]", unionId)
 			break
 		}
 		if i == 1 {
@@ -208,7 +209,7 @@ func (sw *SettlementWorker) do(order *fx_models.FxOrder) {
 
 		historyList = append(historyList, fx_models.FxAccountHistory{
 			AccountId:  fxAccount.ID,
-			UnionId:    fxAccount.UnionId,
+			UnionId:    fxAccount.WechatUnionId,
 			Score:      levelReturns[i],
 			ChangeType: int64(FX_HISTORY_TYPE_ORDER_0 + i),
 			ChangeDesc: fmt.Sprintf(FxHistoryDescs[FX_HISTORY_TYPE_ORDER_0+i], orderFxAccount.Name),

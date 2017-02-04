@@ -70,10 +70,7 @@ func (fxr *FXRouter) robotSign(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error 
 		logrus.Errorf("get req account error: %v", err)
 		return err
 	}
-	fxAccount := &models.FxAccount{
-		UnionId: a.UnionId,
-	}
-	affected, signScore, err := fxr.backend.UpdateFxAccountSignTime(fxAccount)
+	affected, signScore, err := fxr.backend.UpdateFxAccountSignTime(a)
 	if err != nil {
 		logrus.Errorf("Error update fx sign time: %v", err)
 		return err
@@ -103,24 +100,24 @@ func (fxr *FXRouter) robotUserInfo(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) er
 		logrus.Errorf("get req account error: %v", err)
 		return err
 	}
-	withdrawal, err := fxr.backend.GetWithdrawalRecordSum(a.UnionId)
+	withdrawal, err := fxr.backend.GetWithdrawalRecordSum(a.WechatUnionId)
 	if err != nil {
 		logrus.Errorf("get fx withdrawal record sum error: %v", err)
 		return err
 	}
-	orderCount, err := fxr.backend.GetFxOrderListCount(a.UnionId)
+	orderCount, err := fxr.backend.GetFxOrderListCount(a.WechatUnionId)
 	if err != nil {
 		logrus.Errorf("get fx order list count error: %v", err)
 		return err
 	}
-	waitOrderCount, err := fxr.backend.GetFxOrderWaitSettlementRecordListCount(a.UnionId)
+	waitOrderCount, err := fxr.backend.GetFxOrderWaitSettlementRecordListCount(a.WechatUnionId)
 	if err != nil {
 		logrus.Errorf("get fx wait order list count error: %v", err)
 		return err
 	}
 	waitSum, err := fxr.backend.GetFxOrderWaitSettlementRecordSum(a.ID)
 	if err != nil {
-		logrus.Errorf("get fx wait order sum error: %v", err)
+		logrus.Errorf("get fx wait order sum from account[%v] error: %v", a, err)
 		return err
 	}
 	rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
@@ -252,7 +249,7 @@ func (fxr *FXRouter) robotOrderList(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) e
 		logrus.Errorf("get req account error: %v", err)
 		return err
 	}
-	list, err := fxr.backend.GetFxAllOrderList(a.UnionId, 0, 10)
+	list, err := fxr.backend.GetFxAllOrderList(a.WechatUnionId, 0, 10)
 	if err != nil {
 		logrus.Errorf("get fx all order list error: %v", err)
 		return err
@@ -328,7 +325,7 @@ func (fxr *FXRouter) robotWithdrawal(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) 
 		return err
 	}
 	wInfo := &models.WithdrawalRecord{
-		UnionId:         a.UnionId,
+		UnionId:         a.WechatUnionId,
 		WithdrawalMoney: a.CanWithdrawals,
 	}
 	err, ifSystemErr := fxr.backend.CreateWithdrawalRecord(wInfo, a)

@@ -23,9 +23,10 @@ func InitDB(cfg *config.Config) {
 	if err != nil {
 		logrus.Fatalf("Fail to init new engine: %v", err)
 	}
-	x.SetLogger(nil)
+	//x.SetLogger(nil)
 	x.SetMapper(core.GonicMapper{})
 	x.TZLocation, _ = time.LoadLocation("Asia/Shanghai")
+	x.ShowSQL(true)
 
 	if err = x.Sync2(new(FxAccount),
 		new(FxOrder),

@@ -259,11 +259,12 @@ func (fxr *FXRouter) robotOrderList(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) e
 	}
 	msg := CALLBACK_ORDER_LIST_SUCCESS
 	for _, v := range list {
-		msg += "\n" + fmt.Sprintf("%s**** %s", v.OrderId[:4], time.Unix(v.UpdatedAt, 0).Format("2006-01-02"))
+		nameRune := []rune(v.OrderName)
+		msg += "\n" + fmt.Sprintf("%s**** %s**** %s", v.OrderId[:4], string(nameRune[:7]), time.Unix(v.UpdatedAt, 0).Format("2006-01-02"))
 		if v.Status == FX_ORDER_SETTLEMENT {
 			msg += " 已结算"
 		}
-		msg += fmt.Sprintf("返 %d", int(v.ReturnMoney))
+		msg += fmt.Sprintf(" 返%d积分", int(v.ReturnMoney*float32(fxr.cfg.Score.EnlargeScale*fxr.cfg.SettlementCommission.LevelPer[0]/100)))
 	}
 	rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
 		WechatNick: req.BaseInfo.WechatNick,

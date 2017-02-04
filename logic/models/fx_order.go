@@ -87,7 +87,7 @@ func GetFxOrderListCountById(accountId int64) (int64, error) {
 
 func GetFxAllOrderList(unionId string, offset, num int64) ([]FxOrder, error) {
 	var fxOrderList []FxOrder
-	err := x.Where("union_id = ?", unionId).And("status = ?", 3).Desc("created_at").Limit(int(num), int(offset)).Find(&fxOrderList)
+	err := x.Where("union_id = ?", unionId).Desc("created_at").Limit(int(num), int(offset)).Find(&fxOrderList)
 	if err != nil {
 		logrus.Errorf("union_id[%s] get fx order list error: %v", unionId, err)
 		return nil, err

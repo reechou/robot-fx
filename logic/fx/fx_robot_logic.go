@@ -293,7 +293,7 @@ func (fxr *FXRouter) robotGoodsSearch(req *ReceiveMsgInfo, rsp *CallbackMsgInfo)
 				NickName:   req.BaseInfo.FromNickName,
 				UserName:   req.BaseInfo.FromUserName,
 				MsgType:    MSG_TYPE_TEXT,
-				Msg:        fmt.Sprintf(CALLBACK_GOODS_NO_DISCOUNT),
+				Msg:        fmt.Sprintf(CALLBACK_GOODS_NO_DISCOUNT, a.Name),
 			})
 			return nil
 		}

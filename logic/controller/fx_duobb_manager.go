@@ -37,6 +37,9 @@ func (daemon *Daemon) TaobaoGoodsSearch(robot, info string, account *models.FxAc
 		}
 		data, err := daemon.dme.GoodsSearch(searchReq)
 		if err != nil {
+			if err == ext.ERR_DUOBB_GOODS_SEARCH_NO_DISCOUNT {
+				return nil, err
+			}
 			logrus.Errorf("goods search error: %v", err)
 			return nil, err
 		}

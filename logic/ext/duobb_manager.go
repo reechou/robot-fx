@@ -61,7 +61,10 @@ func (we *DuobbManagerExt) GoodsSearch(info *GoodsSearchReq) (*GoodsSearchData, 
 		logrus.Errorf("goods search json decode error: %s", string(rspBody))
 		return nil, err
 	}
-	if response.Code != WECHAT_RESPONSE_OK {
+	if response.Code != DUOBB_MANAGER_RESPONSE_OK {
+		if response.Code == DUOBB_MANAGER_GOODS_SEARCH_NO_DISCOUNT {
+			return nil, ERR_DUOBB_GOODS_SEARCH_NO_DISCOUNT
+		}
 		logrus.Errorf("goods search error: %v", response)
 		return nil, fmt.Errorf("goods search error: %v", response)
 	}

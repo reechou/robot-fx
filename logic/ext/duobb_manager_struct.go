@@ -1,5 +1,18 @@
 package ext
 
+import (
+	"errors"
+)
+
+const (
+	DUOBB_MANAGER_RESPONSE_OK              = 1000
+	DUOBB_MANAGER_GOODS_SEARCH_NO_DISCOUNT = 2001
+)
+
+var (
+	ERR_DUOBB_GOODS_SEARCH_NO_DISCOUNT = errors.New("goods has no discount")
+)
+
 type GoodsSearchReq struct {
 	Query    string `json:"q"`
 	Alimama  string `json:"userName"`

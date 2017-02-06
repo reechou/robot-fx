@@ -82,7 +82,7 @@ func (fxr *FXRouter) robotHandleMsg(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) e
 		return fxr.robotBindWechat(req, rsp)
 	} else if strings.Contains(req.Msg, KEYWORD_SIGN) || req.Msg == KEYWORD_SIGN_ID {
 		return fxr.robotSign(req, rsp)
-	} else if strings.Contains(req.Msg, KEYWORD_LOWER_PEOPLE) || req.Msg == KEYWORD_SIGN_ID {
+	} else if strings.Contains(req.Msg, KEYWORD_LOWER_PEOPLE) || req.Msg == KEYWORD_LOWER_PEOPLE_ID {
 		return fxr.robotGetLowerPeople(req, rsp)
 	} else if strings.Contains(req.Msg, KEYWORD_WITHDRAWAL) || req.Msg == KEYWORD_WITHDRAWAL_ID {
 		return fxr.robotWithdrawal(req, rsp)

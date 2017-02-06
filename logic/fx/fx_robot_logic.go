@@ -11,6 +11,8 @@ import (
 )
 
 func (fxr *FXRouter) getReqAccount(req *ReceiveMsgInfo) (*models.FxAccount, error) {
+	req.BaseInfo.FromNickName = fxr.filterEmoji(req.BaseInfo.FromNickName)
+	
 	account := &models.FxAccount{RobotWx: req.BaseInfo.WechatNick, UserName: req.BaseInfo.FromUserName}
 	has, err := models.GetFxAccountFromUserName(account)
 	if err != nil {
@@ -301,7 +303,15 @@ func (fxr *FXRouter) robotGoodsSearch(req *ReceiveMsgInfo, rsp *CallbackMsgInfo)
 			UserName:   req.BaseInfo.FromUserName,
 			MsgType:    MSG_TYPE_TEXT,
 			Msg: fmt.Sprintf(CALLBACK_GOODS_SEARCH_SUCCESS, a.Name, data.Title, data.ZkPrice, data.EndPrice-returnMoney,
-				data.Amount+returnMoney, data.Amount, returnMoney, data.Token),
+				data.Amount+returnMoney, data.Amount, returnMoney),
+		})
+		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+			WechatNick: req.BaseInfo.WechatNick,
+			ChatType:   CHAT_TYPE_PEOPLE,
+			NickName:   req.BaseInfo.FromNickName,
+			UserName:   req.BaseInfo.FromUserName,
+			MsgType:    MSG_TYPE_TEXT,
+			Msg: fmt.Sprintf(CALLBACK_PLACE_ORDER, data.Token),
 		})
 	} else {
 		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
@@ -310,8 +320,15 @@ func (fxr *FXRouter) robotGoodsSearch(req *ReceiveMsgInfo, rsp *CallbackMsgInfo)
 			NickName:   req.BaseInfo.FromNickName,
 			UserName:   req.BaseInfo.FromUserName,
 			MsgType:    MSG_TYPE_TEXT,
-			Msg: fmt.Sprintf(CALLBACK_GOODS_SEARCH_NO_QUAN_SUCCESS, a.Name, data.Title, data.ZkPrice, data.EndPrice-returnMoney,
-				returnMoney, data.Token),
+			Msg: fmt.Sprintf(CALLBACK_GOODS_SEARCH_NO_QUAN_SUCCESS, a.Name, data.Title, data.ZkPrice, data.EndPrice-returnMoney, returnMoney),
+		})
+		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+			WechatNick: req.BaseInfo.WechatNick,
+			ChatType:   CHAT_TYPE_PEOPLE,
+			NickName:   req.BaseInfo.FromNickName,
+			UserName:   req.BaseInfo.FromUserName,
+			MsgType:    MSG_TYPE_TEXT,
+			Msg: fmt.Sprintf(CALLBACK_PLACE_ORDER, data.Token),
 		})
 	}
 

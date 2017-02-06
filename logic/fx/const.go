@@ -24,6 +24,12 @@ const (
 	KEYWORD_SIGN             = "签到"
 	KEYWORD_LOWER_PEOPLE     = "下线查询"
 	KEYWORD_GOODS_SEARCH_URL = "http"
+
+	KEYWORD_USER_INFO_ID    = "1"
+	KEYWORD_SIGN_ID         = "2"
+	KEYWORD_LOWER_PEOPLE_ID = "3"
+	KEYWORD_ORDER_INFO_ID   = "4"
+	KEYWORD_WITHDRAWAL_ID   = "5"
 )
 
 const (
@@ -31,7 +37,8 @@ const (
 )
 
 const (
-	CALLBACK_HELP                          = "帮助:\n回复 '个人信息' : 查询个人信息\n回复 '签到' : 签到获取积分,每天只能签到一次\n回复 '下线查询' : 查询下线列表\n回复 '订单查询' : 查询订单信息\n回复 '提现' : 申请提现操作\n更多请微信单独咨询哦."
+	CALLBACK_HELP = "帮助:\n回复 '个人信息' 或 '1' : 查询个人信息\n回复 '签到' 或 '2' : 签到获取积分,每天只能签到一次\n" +
+		"回复 '下线查询' 或 '3' : 查询下线列表\n回复 '订单查询' 或 '4' : 查询订单信息\n回复 '提现' 或 '5' : 申请提现操作\n更多请微信单独咨询哦."
 	CALLBACK_CREATE_ACCOUNT_SUCCESS        = "创建账户成功."
 	CALLBACK_CREATE_ACCOUNT_WITHOUT_WECHAT = "创建账户成功,但未绑定微信号. 不绑定微信,会导致订单返积分不成功.\n绑定命令(范例): 绑定微信号xxx"
 	CALLBACK_INVITE_SUCCESS                = "邀请 [ %s ] 成功,增加积分 [ %d ] 分."
@@ -43,11 +50,10 @@ const (
 	CALLBACK_BIND_WECHAT_FAILED            = "[ %s ] 已绑定微信号."
 	CALLBACK_ORDER_LIST_SUCCESS            = "最近订单记录如下(只显示最近10条):"
 	CALLBACK_GOODS_SEARCH_SUCCESS          = "Hi, %s\n【商品名称】\n%s\n[原价] %.02f 元\n[总优惠后价格约] %.02f 元\n" +
-		"【优惠详情】\n[总优惠] %.02f 元\n[优惠券] %.02f 元\n[好评后优惠约] %.02f 元\n" +
-		"【下单】\n%s 长按复制本条信息,打开[手机淘宝]即可领券下单"
+		"【优惠详情】\n[总优惠] %.02f 元\n[优惠券] %.02f 元\n[返利约] %.02f 元"
 	CALLBACK_GOODS_SEARCH_NO_QUAN_SUCCESS = "Hi, %s\n【商品名称】\n%s\n[原价] %.02f 元\n[总优惠后价格约] %.02f 元\n" +
-		"【优惠详情】\n[好评后优惠约] %.02f 元\n" +
-		"【下单】\n%s 长按复制本条信息,打开[手机淘宝]即可领券下单"
+		"【优惠详情】\n[返利约] %.02f 元"
+	CALLBACK_PLACE_ORDER        = "【***下单***】\n%s 长按复制本条信息,打开[手机淘宝]即可领券下单"
 	CALLBACK_WITHDRAWAL_SUCCESS = "Hi, %s\n恭喜您,成功申请提现 %d 积分, 约 %.02f 元\n客服会在24小时内发放微信红包,请耐心等待.\n" +
 		"每个月最多提现 %d 次.\n每次提现最少提现 %d 积分."
 	CALLBACK_WITHDRAWAL_NOTIFY = "返利机器人[ %s ]\n***申请提现操作***\n用户: %s\n微信号: %s\n提现金额: %.02f 元\n操作时间: %s"

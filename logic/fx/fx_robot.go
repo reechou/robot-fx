@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/reechou/robot-fx/logic/models"
@@ -73,17 +74,17 @@ func (fxr *FXRouter) robotCall(ctx context.Context, w http.ResponseWriter, r *ht
 func (fxr *FXRouter) robotHandleMsg(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
 	if strings.Contains(req.Msg, KEYWORD_HELP) {
 		return fxr.robotHelp(req, rsp)
-	} else if strings.Contains(req.Msg, KEYWORD_USER_INFO) {
+	} else if strings.Contains(req.Msg, KEYWORD_USER_INFO) || req.Msg == KEYWORD_USER_INFO_ID {
 		return fxr.robotUserInfo(req, rsp)
-	} else if strings.Contains(req.Msg, KEYWORD_ORDER_INFO) {
+	} else if strings.Contains(req.Msg, KEYWORD_ORDER_INFO) || req.Msg == KEYWORD_ORDER_INFO_ID {
 		return fxr.robotOrderList(req, rsp)
 	} else if strings.Contains(req.Msg, KEYWORD_BIND_WECHAT) {
 		return fxr.robotBindWechat(req, rsp)
-	} else if strings.Contains(req.Msg, KEYWORD_SIGN) {
+	} else if strings.Contains(req.Msg, KEYWORD_SIGN) || req.Msg == KEYWORD_SIGN_ID {
 		return fxr.robotSign(req, rsp)
-	} else if strings.Contains(req.Msg, KEYWORD_LOWER_PEOPLE) {
+	} else if strings.Contains(req.Msg, KEYWORD_LOWER_PEOPLE) || req.Msg == KEYWORD_SIGN_ID {
 		return fxr.robotGetLowerPeople(req, rsp)
-	} else if strings.Contains(req.Msg, KEYWORD_WITHDRAWAL) {
+	} else if strings.Contains(req.Msg, KEYWORD_WITHDRAWAL) || req.Msg == KEYWORD_WITHDRAWAL_ID {
 		return fxr.robotWithdrawal(req, rsp)
 	} else if strings.Contains(req.Msg, KEYWORD_GOODS_SEARCH_URL) {
 		return fxr.robotGoodsSearch(req, rsp)
@@ -215,4 +216,15 @@ func (fxr *FXRouter) createRobotUnionId(req *ReceiveMsgInfo) string {
 
 func (fxr *FXRouter) createWechatUnionId(robotWx, wxid string) string {
 	return robotWx + UNION_ID_DELIMITER + wxid
+}
+
+func (fxr *FXRouter) filterEmoji(content string) string {
+	new_content := ""
+	for _, value := range content {
+		_, size := utf8.DecodeRuneInString(string(value))
+		if size <= 3 {
+			new_content += string(value)
+		}
+	}
+	return new_content
 }

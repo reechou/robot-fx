@@ -45,6 +45,8 @@ type Config struct {
 	Path    string
 	Logging bool
 	Version string
+	
+	OrderServerHost string
 
 	FxDBInfo
 	SettlementCommission

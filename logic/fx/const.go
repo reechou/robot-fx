@@ -60,5 +60,6 @@ const (
 	CALLBACK_GOODS_NO_DISCOUNT  = "hi, %s\n该商品没有优惠哦"
 	CALLBACK_WITHDRAWAL_SUCCESS = "Hi, %s\n恭喜您,成功申请提现 %d 积分, 约 %.02f 元\n客服会在24小时内发放微信红包,请耐心等待.\n" +
 		"每个月最多提现 %d 次.\n每次提现最少提现 %d 积分."
+	CALLBACK_WITHDRAWAL_POLICY = "每个月最多提现 %d 次.\n每次提现最少提现 %d 积分."
 	CALLBACK_WITHDRAWAL_NOTIFY = "返利机器人[ %s ]\n***申请提现操作***\n用户: %s\n微信号: %s\n提现金额: %.02f 元\n操作时间: %s"
 )

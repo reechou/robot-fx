@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"strings"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/extrame/xls"
@@ -14,7 +15,6 @@ import (
 	"github.com/reechou/duobb_proto"
 	"github.com/reechou/robot-fx/logic/tools/order_check/config"
 	"github.com/reechou/robot-fx/logic/tools/order_check/fx_models"
-	"strings"
 )
 
 type TaobaoOrderCheck struct {
@@ -36,10 +36,82 @@ func NewTaobaoOrderCheck(cfg *config.Config, fom *FxOrderManager) *TaobaoOrderCh
 		stop:   make(chan struct{}),
 		done:   make(chan struct{}),
 	}
-	go toc.run()
+	//go toc.run()
 
 	return toc
 }
+
+func (self *TaobaoOrderCheck) TaobaoOrder(reqOrder *fx_models.TaobaoOrder) error {
+	if reqOrder.OrderState == TAOBAO_ORDER_INVALID {
+		return nil
+	}
+	
+	account := &fx_models.FxAccount{
+		WechatUnionId: reqOrder.AdName,
+	}
+	has, err := fx_models.GetFxAccountFromWxUnionId(account)
+	if err != nil {
+		logrus.Errorf("get fx account error: %v", err)
+		return err
+	}
+	if !has {
+		return nil
+	}
+	logrus.Debugf("valid order: %v", reqOrder)
+	
+	order := &fx_models.FxOrder{
+		OrderId: reqOrder.OrderId,
+		GoodsId: reqOrder.GoodsId,
+		Price:   reqOrder.PayPrice,
+	}
+	has, err = fx_models.GetFxOrderInfo(order)
+	if err != nil {
+		logrus.Errorf("get fx order error: %v", err)
+		return err
+	}
+	// create order
+	if !has {
+		order.AccountId = account.ID
+		order.UnionId = account.WxId
+		order.OrderName = reqOrder.GoodsInfo
+		order.ReturnMoney = reqOrder.PredictingEffect
+		err = self.fom.CreateFxOrder(order)
+		if err != nil {
+			logrus.Errorf("create order error: %v", err)
+		}
+	}
+	// update or insert tao order
+	tOrder := &fx_models.TaobaoOrder{
+		GoodsId:  reqOrder.GoodsId,
+		PayPrice: reqOrder.PayPrice,
+		OrderId:  reqOrder.OrderId,
+	}
+	has, err = fx_models.GetTaobaoOrder(tOrder)
+	if err != nil {
+		logrus.Errorf("get tao order error: %v", err)
+		return err
+	}
+	if has {
+		if tOrder.OrderState != reqOrder.OrderState {
+			tOrder.OrderState = reqOrder.OrderState
+			err = fx_models.UpdateTaobaoOrderStatus(tOrder)
+			if err != nil {
+				logrus.Errorf("update taobao order status error: %v", err)
+				return err
+			}
+		}
+		return nil
+	}
+	err = fx_models.CreateTaobaoOrder(reqOrder)
+	if err != nil {
+		logrus.Errorf("create taobao order error: %v", err)
+		return err
+	}
+	
+	return nil
+}
+
+
 
 func (self *TaobaoOrderCheck) run() {
 	logrus.Debugf("taobao order check run start.")
@@ -62,7 +134,7 @@ func (self *TaobaoOrderCheck) runCheck() {
 		self.oneDayTimes = 0
 	}
 	self.oneDayTimes++
-
+	
 	alimamaList, err := fx_models.GetFxRobotAlimamaList()
 	if err != nil {
 		logrus.Errorf("get fx robot alimama list error: %v", err)

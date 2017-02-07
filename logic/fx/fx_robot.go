@@ -201,14 +201,14 @@ func (fxr *FXRouter) robotAddFriend(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) e
 		return err
 	}
 	if req.AddFriend.UserWechat != "" {
-		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
-			WechatNick: req.BaseInfo.WechatNick,
-			ChatType:   CHAT_TYPE_PEOPLE,
-			NickName:   req.BaseInfo.FromNickName,
-			UserName:   req.BaseInfo.FromUserName,
-			MsgType:    MSG_TYPE_TEXT,
-			Msg:        CALLBACK_CREATE_ACCOUNT_SUCCESS,
-		})
+		//rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+		//	WechatNick: req.BaseInfo.WechatNick,
+		//	ChatType:   CHAT_TYPE_PEOPLE,
+		//	NickName:   req.BaseInfo.FromNickName,
+		//	UserName:   req.BaseInfo.FromUserName,
+		//	MsgType:    MSG_TYPE_TEXT,
+		//	Msg:        CALLBACK_CREATE_ACCOUNT_SUCCESS,
+		//})
 	} else {
 		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
 			WechatNick: req.BaseInfo.WechatNick,

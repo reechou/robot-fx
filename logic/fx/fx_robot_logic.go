@@ -390,7 +390,7 @@ func (fxr *FXRouter) robotWithdrawal(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) 
 				NickName:   req.BaseInfo.FromNickName,
 				UserName:   req.BaseInfo.FromUserName,
 				MsgType:    MSG_TYPE_TEXT,
-				Msg:        err.Error(),
+				Msg:        fmt.Sprintf("%s\n"+CALLBACK_WITHDRAWAL_POLICY, err.Error(), fxr.cfg.WithdrawalPolicy.MonthWithdrawalTime, fxr.cfg.WithdrawalPolicy.MinimumWithdrawal),
 			})
 			return nil
 		}

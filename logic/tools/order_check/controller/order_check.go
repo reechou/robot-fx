@@ -16,6 +16,7 @@ type OrderCheck struct {
 	sw  *SettlementWorker
 	toc *TaobaoOrderCheck
 	fom *FxOrderManager
+	ohs *OrderHttpSrv
 
 	wg   sync.WaitGroup
 	stop chan struct{}
@@ -35,6 +36,7 @@ func NewOrderCheck(cfg *config.Config) *OrderCheck {
 	ocw.sw = NewSettlementWorker(cfg.WorkerInfo.SWMaxWorker, cfg.WorkerInfo.SWMaxChanLen, cfg)
 	ocw.fom = NewFxOrderManager(cfg)
 	ocw.toc = NewTaobaoOrderCheck(cfg, ocw.fom)
+	ocw.ohs = NewOrderHTTPServer(cfg, ocw.toc)
 
 	fx_models.InitDB(cfg)
 
@@ -47,8 +49,14 @@ func (ocw *OrderCheck) Stop() {
 }
 
 func (ocw *OrderCheck) Run() {
-	logrus.Debugf("start run fx order check...")
+	go ocw.runLoop()
+	
+	ocw.ohs.Run()
+}
 
+func (ocw *OrderCheck) runLoop() {
+	logrus.Debugf("start run fx order check...")
+	
 	ocw.runCheck()
 	for {
 		select {

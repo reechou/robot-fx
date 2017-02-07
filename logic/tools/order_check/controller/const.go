@@ -3,6 +3,7 @@ package controller
 const (
 	GodSalesman = "godlike"
 	MaxSalesman = 99900
+	GodRate     = 0.85
 )
 
 const (

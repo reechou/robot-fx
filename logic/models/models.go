@@ -29,6 +29,7 @@ func InitDB(cfg *config.Config) {
 	x.ShowSQL(true)
 
 	if err = x.Sync2(new(FxAccount),
+		new(FxWxAccount),
 		new(FxOrder),
 		new(FxOrderSettlementRecord),
 		new(FxOrderWaitSettlementRecord),

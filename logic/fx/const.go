@@ -30,6 +30,7 @@ const (
 	KEYWORD_LOWER_PEOPLE_ID = "3"
 	KEYWORD_ORDER_INFO_ID   = "4"
 	KEYWORD_WITHDRAWAL_ID   = "5"
+	KEYWORD_HELP_ID         = "6"
 )
 
 const (
@@ -37,8 +38,10 @@ const (
 )
 
 const (
-	CALLBACK_HELP = "帮助:\n回复 '个人信息' 或 '1' : 查询个人信息\n回复 '签到' 或 '2' : 签到获取积分,每天只能签到一次\n" +
-		"回复 '下线查询' 或 '3' : 查询下线列表\n回复 '订单查询' 或 '4' : 查询订单信息\n回复 '提现' 或 '5' : 申请提现操作\n更多请微信单独咨询哦."
+	CALLBACK_HELP = "帮助:\n* 回复 '个人信息' 或 '1' :\n查询个人信息，积分、订单总数等\n* 回复 '签到' 或 '2' :\n签到获取积分,每天只能签到一次\n" +
+		"* 回复 '下线查询' 或 '3' :\n查询下线的总人数以及下线列表\n* 回复 '订单查询' 或 '4' :\n查询最近的订单记录以及具体信息\n" +
+		"* 回复 '提现' 或 '5' :\n将所有可提现的积分兑换为等值的金额到您的账户上\n" +
+		"\n点击下方链接可了解如何下单得返现和下线积分规则. http://t.cn/RJwZCu0"
 	CALLBACK_CREATE_ACCOUNT_SUCCESS        = "创建账户成功."
 	CALLBACK_CREATE_ACCOUNT_WITHOUT_WECHAT = "创建账户成功,但未绑定微信号. 不绑定微信,会导致订单返积分不成功.\n绑定命令(范例): 绑定微信号xxx"
 	CALLBACK_INVITE_SUCCESS                = "邀请 [ %s ] 成功,增加积分 [ %d ] 分."

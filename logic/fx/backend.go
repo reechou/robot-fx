@@ -6,6 +6,8 @@ import (
 )
 
 type fxAccountBackend interface {
+	CreateFxWxAccount(fxWxAccount *models.FxWxAccount) error
+	UpdateFxWxAccountSignTime(fxWxAccount *models.FxWxAccount) (int64, error)
 	CreateFxAccount(fxAccount *models.FxAccount) (int, error)
 	CreateSalesman(fxAccount *models.FxAccount) error
 	UpdateFxAccountBaseInfo(fxAccount *models.FxAccount) error
@@ -42,7 +44,7 @@ type fxOrderBackend interface {
 }
 
 type fxWithdrawalBackend interface {
-	CreateWithdrawalRecord(info *models.WithdrawalRecord, fxAccount *models.FxAccount) (error, bool)
+	CreateWithdrawalRecord(info *models.WithdrawalRecord, fxAccount *models.FxAccount, fxWxAccount *models.FxWxAccount) (error, bool)
 	GetWithdrawalRecordListCount(unionId string, status int64) (int64, error)
 	GetWithdrawalRecordListCountById(accountId int64) (int64, error)
 	GetWithdrawalRecordList(unionId string, offset, num, status int64) ([]models.WithdrawalRecord, error)

@@ -35,7 +35,7 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 
 	var levelReturns []float32
 	for i := 0; i < len(self.cfg.LevelPer); i++ {
-		lReturn := info.ReturnMoney * float32(self.cfg.LevelPer[i]) / 100.0 * float32(self.cfg.Score.EnlargeScale)
+		lReturn := info.ReturnMoney * GodRate * float32(self.cfg.LevelPer[i]) / 100.0 * float32(self.cfg.Score.EnlargeScale)
 		levelReturns = append(levelReturns, lReturn)
 	}
 
@@ -52,42 +52,42 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 		CreatedAt:   now,
 	})
 
-	fxAccount := &fx_models.FxAccount{
-		WechatUnionId: info.UnionId,
+	fxWxAccount := &fx_models.FxWxAccount{
+		WxId: info.UnionId,
 	}
-	has, err := fx_models.GetFxAccountFromWxUnionId(fxAccount)
+	has, err := fx_models.GetFxWxAccount(fxWxAccount)
 	if err != nil {
-		logrus.Errorf("create order[%v] get fx account from wx_union_id[%s] error: %v",
+		logrus.Errorf("create order[%v] get fx wx account from wx_id[%s] error: %v",
 			info, info.UnionId, err)
 		return err
 	}
 	if !has {
-		logrus.Errorf("create order no this owern account wx_union_id[%s]", info.UnionId)
-		return fmt.Errorf("create order no this owern account wx_union_id[%s]", info.UnionId)
+		logrus.Errorf("create order no this owern account wx_id[%s]", info.UnionId)
+		return fmt.Errorf("create order no this owern account wx_id[%s]", info.UnionId)
 	}
 
-	unionId := fxAccount.Superior
+	unionId := fxWxAccount.Superior
 	for i := 1; i < len(levelReturns); i++ {
 		// get upper
-		fxAccount := &fx_models.FxAccount{
-			WechatUnionId: unionId,
+		fxWxAccount := &fx_models.FxWxAccount{
+			WxId: unionId,
 		}
-		if fxAccount.UnionId == GodSalesman {
+		if fxWxAccount.WxId == GodSalesman {
 			break
 		}
-		has, err := fx_models.GetFxAccountFromWxUnionId(fxAccount)
+		has, err := fx_models.GetFxWxAccount(fxWxAccount)
 		if err != nil {
-			logrus.Errorf("create wait settlement order[%v] in level[%d] get fx account from wx_union_id[%s] error: %v",
+			logrus.Errorf("create wait settlement order[%v] in level[%d] get fx wx account from wx_id[%s] error: %v",
 				info, i, unionId, err)
 			return err
 		}
 		if !has {
-			logrus.Debugf("create wait settlement no this account wx_union_id[%s]", unionId)
+			logrus.Debugf("create wait settlement no this account wx_id[%s]", unionId)
 			break
 		}
 
 		recordList = append(recordList, fx_models.FxOrderWaitSettlementRecord{
-			AccountId:   fxAccount.ID,
+			AccountId:   fxWxAccount.ID,
 			UnionId:     unionId,
 			OrderId:     info.OrderId,
 			GoodsId:     info.GoodsId,
@@ -97,7 +97,7 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 			CreatedAt:   now,
 		})
 
-		unionId = fxAccount.Superior
+		unionId = fxWxAccount.Superior
 	}
 
 	err = fx_models.CreateFxOrderWaitSettlementRecordList(recordList)

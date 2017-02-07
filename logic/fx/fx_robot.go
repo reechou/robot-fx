@@ -72,7 +72,7 @@ func (fxr *FXRouter) robotCall(ctx context.Context, w http.ResponseWriter, r *ht
 }
 
 func (fxr *FXRouter) robotHandleMsg(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
-	if strings.Contains(req.Msg, KEYWORD_HELP) {
+	if strings.Contains(req.Msg, KEYWORD_HELP) || req.Msg == KEYWORD_HELP_ID {
 		return fxr.robotHelp(req, rsp)
 	} else if strings.Contains(req.Msg, KEYWORD_USER_INFO) || req.Msg == KEYWORD_USER_INFO_ID {
 		return fxr.robotUserInfo(req, rsp)
@@ -94,11 +94,32 @@ func (fxr *FXRouter) robotHandleMsg(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) e
 }
 
 func (fxr *FXRouter) robotAddFriend(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
+	fxWxAccount := &models.FxWxAccount{
+		WxId: req.AddFriend.UserWxid,
+	}
+	has, err := models.GetFxWxAccount(fxWxAccount)
+	if err != nil {
+		logrus.Errorf("get fx wx account from wxid[%s] error: %v", req.AddFriend.UserWxid, err)
+		return err
+	}
+	if !has {
+		fxWxAccount.Wechat = req.AddFriend.UserWechat
+		fxWxAccount.Name = req.BaseInfo.FromNickName
+		if req.AddFriend.SourceWechat != "" {
+			fxWxAccount.Superior = req.AddFriend.SourceWechat
+		}
+		err = fxr.backend.CreateFxWxAccount(fxWxAccount)
+		if err != nil {
+			logrus.Errorf("create fx wx account error: %v", err)
+			return err
+		}
+	}
+
 	account := &models.FxAccount{
 		RobotWx:  req.BaseInfo.WechatNick,
 		UserName: req.BaseInfo.FromUserName,
 	}
-	has, err := models.GetFxAccountFromUserName(account)
+	has, err = models.GetFxAccountFromUserName(account)
 	if err != nil {
 		logrus.Errorf("get fx account from username[%v] error: %v", account, err)
 		return err
@@ -166,6 +187,7 @@ func (fxr *FXRouter) robotAddFriend(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) e
 		RobotWx:       req.BaseInfo.WechatNick,
 		WechatUnionId: wechatUnionId,
 		Wechat:        req.AddFriend.UserWechat,
+		WxId:          req.AddFriend.UserWxid,
 		UserName:      req.BaseInfo.FromUserName,
 		Name:          req.BaseInfo.FromNickName,
 		Superior:      superior,
@@ -173,7 +195,7 @@ func (fxr *FXRouter) robotAddFriend(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) e
 		GuideId:       guideId,
 		AdzoneId:      adzoneId,
 	}
-	inviteScore, err := fxr.backend.CreateFxAccount(fxAccount)
+	_, err = fxr.backend.CreateFxAccount(fxAccount)
 	if err != nil {
 		logrus.Errorf("backend create account error: %v", err)
 		return err
@@ -197,13 +219,13 @@ func (fxr *FXRouter) robotAddFriend(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) e
 			Msg:        CALLBACK_CREATE_ACCOUNT_WITHOUT_WECHAT,
 		})
 	}
-	if superior != "" {
+	if fxWxAccount.Superior != "" {
 		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
 			WechatNick: req.BaseInfo.WechatNick,
 			ChatType:   CHAT_TYPE_PEOPLE,
 			NickName:   req.AddFriend.SourceNick,
 			MsgType:    MSG_TYPE_TEXT,
-			Msg:        fmt.Sprintf(CALLBACK_INVITE_SUCCESS, req.AddFriend.UserNick, inviteScore),
+			Msg:        fmt.Sprintf(CALLBACK_INVITE_SUCCESS, req.AddFriend.UserNick, fxr.cfg.Score.FollowScore),
 		})
 	}
 

@@ -91,7 +91,7 @@ func (sw *SettlementWorker) do(order *fx_models.FxOrder) {
 
 	var levelReturns []float32
 	for i := 0; i < len(sw.cfg.SettlementCommission.LevelPer); i++ {
-		lReturn := order.ReturnMoney * float32(sw.cfg.SettlementCommission.LevelPer[i]) / 100.0 * float32(sw.cfg.Score.EnlargeScale)
+		lReturn := order.ReturnMoney * GodRate * float32(sw.cfg.SettlementCommission.LevelPer[i]) / 100.0 * float32(sw.cfg.Score.EnlargeScale)
 		levelReturns = append(levelReturns, lReturn)
 	}
 
@@ -116,12 +116,12 @@ func (sw *SettlementWorker) do(order *fx_models.FxOrder) {
 	//	return err
 	//}
 
-	orderFxAccount := &fx_models.FxAccount{
-		WechatUnionId: order.UnionId,
+	orderFxWxAccount := &fx_models.FxWxAccount{
+		WxId: order.UnionId,
 	}
-	has, err = fx_models.GetFxAccountFromWxUnionId(orderFxAccount)
+	has, err = fx_models.GetFxWxAccount(orderFxWxAccount)
 	if err != nil {
-		logrus.Errorf("do settlement order[%v] in level[0] get fx account from wx_union_id[%s] error: %v",
+		logrus.Errorf("do settlement order[%v] in level[0] get fx account from wx_id[%s] error: %v",
 			order, order.UnionId, err)
 		return
 	}
@@ -132,7 +132,7 @@ func (sw *SettlementWorker) do(order *fx_models.FxOrder) {
 
 	var recordList []fx_models.FxOrderSettlementRecord
 	recordList = append(recordList, fx_models.FxOrderSettlementRecord{
-		AccountId:    orderFxAccount.ID,
+		AccountId:    orderFxWxAccount.ID,
 		UnionId:      order.UnionId,
 		OrderId:      order.OrderId,
 		GoodsId:      order.GoodsId,
@@ -147,42 +147,42 @@ func (sw *SettlementWorker) do(order *fx_models.FxOrder) {
 
 	var historyList []fx_models.FxAccountHistory
 	historyList = append(historyList, fx_models.FxAccountHistory{
-		AccountId:  orderFxAccount.ID,
-		UnionId:    orderFxAccount.WechatUnionId,
+		AccountId:  orderFxWxAccount.ID,
+		UnionId:    orderFxWxAccount.WxId,
 		Score:      levelReturns[0],
 		ChangeType: int64(FX_HISTORY_TYPE_ORDER_0),
 		ChangeDesc: FxHistoryDescs[FX_HISTORY_TYPE_ORDER_0],
 		CreatedAt:  now,
 	})
 
-	var upperFxAccount *fx_models.FxAccount
+	var upperFxAccount *fx_models.FxWxAccount
 
-	// this unionId is always wx_union_id
-	unionId := orderFxAccount.Superior
+	// this unionId is always wx_id
+	unionId := orderFxWxAccount.Superior
 	for i := 1; i < len(levelReturns); i++ {
 		// get upper
-		fxAccount := &fx_models.FxAccount{
-			WechatUnionId: unionId,
+		fxWxAccount := &fx_models.FxWxAccount{
+			WxId: unionId,
 		}
-		has, err := fx_models.GetFxAccountFromWxUnionId(fxAccount)
+		has, err := fx_models.GetFxWxAccount(fxWxAccount)
 		if err != nil {
-			logrus.Errorf("do settlement order[%v] in level[%d] get fx account from wx_union_id[%s] error: %v",
+			logrus.Errorf("do settlement order[%v] in level[%d] get fx wx account from wx_id[%s] error: %v",
 				order, i, unionId, err)
 			return
 		}
 		if !has {
-			logrus.Debugf("do settlement no this account of wx_union_id[%s]", unionId)
+			logrus.Debugf("do settlement no this account of wx_id[%s]", unionId)
 			break
 		}
 		if i == 1 {
-			upperFxAccount = &fx_models.FxAccount{
-				ID:      fxAccount.ID,
-				UnionId: fxAccount.UnionId,
-				Name:    fxAccount.Name,
+			upperFxAccount = &fx_models.FxWxAccount{
+				ID:   fxWxAccount.ID,
+				WxId: fxWxAccount.WxId,
+				Name: fxWxAccount.Name,
 			}
 		}
 		// add return money
-		err = fx_models.AddFxAccountMoney(levelReturns[i], fxAccount)
+		err = fx_models.AddFxWxAccountMoney(levelReturns[i], fxWxAccount)
 		if err != nil {
 			logrus.Errorf("do settlement order[%v] in level[%d] add money in fx account from union_id[%d] error: %v",
 				order, i, unionId, err)
@@ -208,14 +208,14 @@ func (sw *SettlementWorker) do(order *fx_models.FxOrder) {
 		//})
 
 		historyList = append(historyList, fx_models.FxAccountHistory{
-			AccountId:  fxAccount.ID,
-			UnionId:    fxAccount.WechatUnionId,
+			AccountId:  fxWxAccount.ID,
+			UnionId:    fxWxAccount.WxId,
 			Score:      levelReturns[i],
 			ChangeType: int64(FX_HISTORY_TYPE_ORDER_0 + i),
-			ChangeDesc: fmt.Sprintf(FxHistoryDescs[FX_HISTORY_TYPE_ORDER_0+i], orderFxAccount.Name),
+			ChangeDesc: fmt.Sprintf(FxHistoryDescs[FX_HISTORY_TYPE_ORDER_0+i], fxWxAccount.Name),
 			CreatedAt:  now,
 		})
-		unionId = fxAccount.Superior
+		unionId = fxWxAccount.Superior
 	}
 
 	err = fx_models.CreateFxOrderSettlementRecordList(recordList)
@@ -228,5 +228,5 @@ func (sw *SettlementWorker) do(order *fx_models.FxOrder) {
 		logrus.Errorf("create fx order[%v] fx account history list error: %v", order, err)
 	}
 	// check order act
-	sw.act.CheckActOfOrder(orderFxAccount, upperFxAccount)
+	sw.act.CheckActOfOrder(orderFxWxAccount, upperFxAccount)
 }

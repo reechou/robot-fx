@@ -85,7 +85,7 @@ func (self *ActLogic) init() {
 	}
 }
 
-func (self *ActLogic) CheckActOfOrder(fxAccount *fx_models.FxAccount, upperFxAccount *fx_models.FxAccount) {
+func (self *ActLogic) CheckActOfOrder(fxAccount *fx_models.FxWxAccount, upperFxAccount *fx_models.FxWxAccount) {
 	for _, v := range self.actList {
 		count, err := self.checkOrderCount(fxAccount, v)
 		if err != nil {
@@ -98,17 +98,17 @@ func (self *ActLogic) CheckActOfOrder(fxAccount *fx_models.FxAccount, upperFxAcc
 	}
 }
 
-func (self *ActLogic) checkOrderCount(fxAccount *fx_models.FxAccount, act *ActInfo) (int64, error) {
+func (self *ActLogic) checkOrderCount(fxAccount *fx_models.FxWxAccount, act *ActInfo) (int64, error) {
 	return fx_models.GetFxOrderSettlementRecordListCountById(fxAccount.ID, act.StartTime, act.EndTime)
 }
 
-func (self *ActLogic) addActReward(fxAccount *fx_models.FxAccount, upperFxAccount *fx_models.FxAccount, info *ActInfo) error {
-	err := fx_models.AddFxAccountMoney(info.ActReward, fxAccount)
+func (self *ActLogic) addActReward(fxAccount *fx_models.FxWxAccount, upperFxAccount *fx_models.FxWxAccount, info *ActInfo) error {
+	err := fx_models.AddFxWxAccountMoney(info.ActReward, fxAccount)
 	if err != nil {
 		logrus.Errorf("act[%s] add account[%v] money error: %v", info, fxAccount, err)
 		return err
 	}
-	err = fx_models.AddFxAccountMoney(info.ActUpperReward, upperFxAccount)
+	err = fx_models.AddFxWxAccountMoney(info.ActUpperReward, upperFxAccount)
 	if err != nil {
 		logrus.Errorf("act[%s] add upper account[%v] money error: %v", info, upperFxAccount, err)
 		return err
@@ -117,11 +117,11 @@ func (self *ActLogic) addActReward(fxAccount *fx_models.FxAccount, upperFxAccoun
 	return nil
 }
 
-func (self *ActLogic) addAccountHistory(fxAccount *fx_models.FxAccount, upperFxAccount *fx_models.FxAccount, info *ActInfo) {
+func (self *ActLogic) addAccountHistory(fxAccount *fx_models.FxWxAccount, upperFxAccount *fx_models.FxWxAccount, info *ActInfo) {
 	var historyList []fx_models.FxAccountHistory
 	historyList = append(historyList, fx_models.FxAccountHistory{
 		AccountId:  fxAccount.ID,
-		UnionId:    fxAccount.UnionId,
+		UnionId:    fxAccount.WxId,
 		Score:      info.ActReward,
 		ChangeType: int64(info.ActHisType),
 		ChangeDesc: info.ActDesc,
@@ -129,7 +129,7 @@ func (self *ActLogic) addAccountHistory(fxAccount *fx_models.FxAccount, upperFxA
 	})
 	historyList = append(historyList, fx_models.FxAccountHistory{
 		AccountId:  upperFxAccount.ID,
-		UnionId:    upperFxAccount.UnionId,
+		UnionId:    upperFxAccount.WxId,
 		Score:      info.ActUpperReward,
 		ChangeType: int64(info.ActHisType),
 		ChangeDesc: fmt.Sprintf("下线 %s %s", fxAccount.Name, info.ActDesc),

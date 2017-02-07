@@ -8,12 +8,12 @@ import (
 )
 
 // return error, ifSystemError
-func (daemon *Daemon) CreateWithdrawalRecord(info *models.WithdrawalRecord, fxAccount *models.FxAccount) (error, bool) {
+func (daemon *Daemon) CreateWithdrawalRecord(info *models.WithdrawalRecord, fxAccount *models.FxAccount, fxWxAccount *models.FxWxAccount) (error, bool) {
 	if info.WithdrawalMoney < float32(daemon.cfg.WithdrawalPolicy.MinimumWithdrawal) {
 		return ErrWithdrawalMinimum, false
 	}
 
-	if fxAccount.CanWithdrawals < info.WithdrawalMoney {
+	if fxWxAccount.CanWithdrawals < info.WithdrawalMoney {
 		return ErrWithdrawalLimitBalance, false
 	}
 
@@ -27,18 +27,18 @@ func (daemon *Daemon) CreateWithdrawalRecord(info *models.WithdrawalRecord, fxAc
 	}
 
 	if daemon.cfg.WithdrawalPolicy.IfWithdrawalCheck {
-		err = models.MinusFxAccountMoney(info.WithdrawalMoney, fxAccount)
+		err = models.MinusFxWxAccountMoney(info.WithdrawalMoney, fxWxAccount)
 		if err != nil {
-			logrus.Errorf("withdrawal money[%f] with account[%v] error: %v", info.WithdrawalMoney, fxAccount, err)
+			logrus.Errorf("withdrawal money[%f] with account[%v] error: %v", info.WithdrawalMoney, fxWxAccount, err)
 			return err, true
 		}
 
-		info.AccountId = fxAccount.ID
+		info.AccountId = fxWxAccount.ID
 		info.RobotWx = fxAccount.RobotWx
 		info.Wechat = fxAccount.Wechat
 		info.Name = fxAccount.Name
 		info.Status = WITHDRAWAL_WAITING
-		info.Balance = fxAccount.CanWithdrawals - info.WithdrawalMoney
+		info.Balance = fxWxAccount.CanWithdrawals - info.WithdrawalMoney
 		err = models.CreateWithdrawalRecord(info)
 		if err != nil {
 			logrus.Errorf("create withdrawal record error: %v", err)

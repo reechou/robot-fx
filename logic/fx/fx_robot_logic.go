@@ -11,14 +11,14 @@ import (
 	"github.com/reechou/robot-fx/logic/models"
 )
 
-func (fxr *FXRouter) getReqAccount(req *ReceiveMsgInfo) (*models.FxAccount, error) {
+func (fxr *FXRouter) getReqAccount(req *ReceiveMsgInfo) (*models.FxAccount, *models.FxWxAccount, error) {
 	req.BaseInfo.FromNickName = fxr.filterEmoji(req.BaseInfo.FromNickName)
 
 	account := &models.FxAccount{RobotWx: req.BaseInfo.WechatNick, UserName: req.BaseInfo.FromUserName}
 	has, err := models.GetFxAccountFromUserName(account)
 	if err != nil {
 		logrus.Errorf("get fx account from username[%v] erorr: %v", account, err)
-		return nil, err
+		return nil, nil, err
 	}
 	if has {
 		if req.BaseInfo.FromNickName != account.Name && req.BaseInfo.FromNickName != "" {
@@ -27,10 +27,22 @@ func (fxr *FXRouter) getReqAccount(req *ReceiveMsgInfo) (*models.FxAccount, erro
 			err = models.UpdateFxAccountName(account)
 			if err != nil {
 				logrus.Errorf("update fx account name[%v] error: %v", account, err)
-				return nil, err
+				return nil, nil, err
 			}
 		}
-		return account, nil
+		fxWxAccount := &models.FxWxAccount{
+			WxId: account.WxId,
+		}
+		has, err = models.GetFxWxAccount(fxWxAccount)
+		if err != nil {
+			logrus.Errorf("get fx wx account error: %v", err)
+			return nil, nil, err
+		}
+		if !has {
+			logrus.Errorf("fx wx account has none this account")
+			return nil, nil, REQ_ACCOUNT_GET_NONE
+		}
+		return account, fxWxAccount, nil
 	}
 	logrus.Debugf("cannot found username[%v]", account)
 	unionId := fxr.createRobotUnionId(req)
@@ -40,11 +52,11 @@ func (fxr *FXRouter) getReqAccount(req *ReceiveMsgInfo) (*models.FxAccount, erro
 	has, err = models.GetFxAccount(account)
 	if err != nil {
 		logrus.Errorf("get fx account from unionid[%v] erorr: %v", account, err)
-		return nil, err
+		return nil, nil, err
 	}
 	if !has {
 		logrus.Errorf("cannot found this req[%v] account.", req)
-		return nil, REQ_ACCOUNT_GET_NONE
+		return nil, nil, REQ_ACCOUNT_GET_NONE
 	}
 	// update username
 	account.UserName = req.BaseInfo.FromUserName
@@ -52,7 +64,19 @@ func (fxr *FXRouter) getReqAccount(req *ReceiveMsgInfo) (*models.FxAccount, erro
 	if err != nil {
 		logrus.Errorf("update account[%v] username erorr: %v", account, err)
 	}
-	return account, nil
+	fxWxAccount := &models.FxWxAccount{
+		WxId: account.WxId,
+	}
+	has, err = models.GetFxWxAccount(fxWxAccount)
+	if err != nil {
+		logrus.Errorf("get fx wx account error: %v", err)
+		return nil, nil, err
+	}
+	if !has {
+		logrus.Errorf("fx wx account has none this account")
+		return nil, nil, REQ_ACCOUNT_GET_NONE
+	}
+	return account, fxWxAccount, nil
 }
 
 func (fxr *FXRouter) robotHelp(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
@@ -68,12 +92,12 @@ func (fxr *FXRouter) robotHelp(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error 
 }
 
 func (fxr *FXRouter) robotSign(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
-	a, err := fxr.getReqAccount(req)
+	_, wa, err := fxr.getReqAccount(req)
 	if err != nil {
 		logrus.Errorf("get req account error: %v", err)
 		return err
 	}
-	affected, signScore, err := fxr.backend.UpdateFxAccountSignTime(a)
+	affected, err := fxr.backend.UpdateFxWxAccountSignTime(wa)
 	if err != nil {
 		logrus.Errorf("Error update fx sign time: %v", err)
 		return err
@@ -88,7 +112,7 @@ func (fxr *FXRouter) robotSign(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error 
 		if affected == 0 {
 			sendMsg.Msg = CALLBACK_SIGN_FAILED
 		} else {
-			sendMsg.Msg = fmt.Sprintf(CALLBACK_SIGN_SUCCESS, signScore)
+			sendMsg.Msg = fmt.Sprintf(CALLBACK_SIGN_SUCCESS, fxr.cfg.Score.SignScore)
 		}
 		rsp.CallbackMsgs = append(rsp.CallbackMsgs, sendMsg)
 		return nil
@@ -98,29 +122,29 @@ func (fxr *FXRouter) robotSign(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error 
 }
 
 func (fxr *FXRouter) robotUserInfo(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
-	a, err := fxr.getReqAccount(req)
+	_, wa, err := fxr.getReqAccount(req)
 	if err != nil {
 		logrus.Errorf("get req account error: %v", err)
 		return err
 	}
-	withdrawal, err := fxr.backend.GetWithdrawalRecordSum(a.WechatUnionId)
+	withdrawal, err := fxr.backend.GetWithdrawalRecordSum(wa.WxId)
 	if err != nil {
 		logrus.Errorf("get fx withdrawal record sum error: %v", err)
 		return err
 	}
-	orderCount, err := fxr.backend.GetFxOrderListCount(a.WechatUnionId)
+	orderCount, err := fxr.backend.GetFxOrderListCount(wa.WxId)
 	if err != nil {
 		logrus.Errorf("get fx order list count error: %v", err)
 		return err
 	}
-	waitOrderCount, err := fxr.backend.GetFxOrderWaitSettlementRecordListCount(a.WechatUnionId)
+	waitOrderCount, err := fxr.backend.GetFxOrderWaitSettlementRecordListCount(wa.WxId)
 	if err != nil {
 		logrus.Errorf("get fx wait order list count error: %v", err)
 		return err
 	}
-	waitSum, err := fxr.backend.GetFxOrderWaitSettlementRecordSum(a.ID)
+	waitSum, err := fxr.backend.GetFxOrderWaitSettlementRecordSum(wa.ID)
 	if err != nil {
-		logrus.Errorf("get fx wait order sum from account[%v] error: %v", a, err)
+		logrus.Errorf("get fx wait order sum from account[%v] error: %v", wa, err)
 		return err
 	}
 	rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
@@ -129,7 +153,7 @@ func (fxr *FXRouter) robotUserInfo(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) er
 		NickName:   req.BaseInfo.FromNickName,
 		UserName:   req.BaseInfo.FromUserName,
 		MsgType:    MSG_TYPE_TEXT,
-		Msg: fmt.Sprintf(CALLBACK_USER_INFO_SUCCESS, req.BaseInfo.FromNickName, int(a.CanWithdrawals), int(a.AllScore),
+		Msg: fmt.Sprintf(CALLBACK_USER_INFO_SUCCESS, req.BaseInfo.FromNickName, int(wa.CanWithdrawals), int(wa.AllScore),
 			int(withdrawal), int(orderCount), int(waitOrderCount), int(waitSum)),
 	})
 
@@ -137,17 +161,17 @@ func (fxr *FXRouter) robotUserInfo(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) er
 }
 
 func (fxr *FXRouter) robotGetLowerPeople(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
-	a, err := fxr.getReqAccount(req)
+	_, wa, err := fxr.getReqAccount(req)
 	if err != nil {
 		logrus.Errorf("get req account error: %v", err)
 		return err
 	}
-	count, err := fxr.backend.GetLowerPeopleCount(a.WechatUnionId)
+	count, err := models.GetFxWxLowerPeopleCount(wa.WxId)
 	if err != nil {
 		logrus.Errorf("get lower people count error: %v", err)
 		return err
 	}
-	list, err := fxr.backend.GetLowerPeopleList(a.WechatUnionId, 0, 20)
+	list, err := models.GetFxWxLowerPeople(wa.WxId, 0, 20)
 	if err != nil {
 		logrus.Errorf("get lower people list error: %v", err)
 		return err
@@ -171,7 +195,7 @@ func (fxr *FXRouter) robotGetLowerPeople(req *ReceiveMsgInfo, rsp *CallbackMsgIn
 func (fxr *FXRouter) robotBindWechat(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
 	wechat := strings.Replace(req.Msg, KEYWORD_BIND_WECHAT, "", -1)
 
-	a, err := fxr.getReqAccount(req)
+	a, _, err := fxr.getReqAccount(req)
 	if err != nil {
 		if err != REQ_ACCOUNT_GET_NONE {
 			return err
@@ -247,12 +271,12 @@ func (fxr *FXRouter) robotBindWechat(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) 
 }
 
 func (fxr *FXRouter) robotOrderList(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
-	a, err := fxr.getReqAccount(req)
+	_, wa, err := fxr.getReqAccount(req)
 	if err != nil {
 		logrus.Errorf("get req account error: %v", err)
 		return err
 	}
-	list, err := fxr.backend.GetFxAllOrderList(a.WechatUnionId, 0, 10)
+	list, err := fxr.backend.GetFxAllOrderList(wa.WxId, 0, 10)
 	if err != nil {
 		logrus.Errorf("get fx all order list error: %v", err)
 		return err
@@ -279,7 +303,7 @@ func (fxr *FXRouter) robotOrderList(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) e
 }
 
 func (fxr *FXRouter) robotGoodsSearch(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
-	a, err := fxr.getReqAccount(req)
+	a, _, err := fxr.getReqAccount(req)
 	if err != nil {
 		logrus.Errorf("get req account error: %v", err)
 		return err
@@ -348,16 +372,16 @@ func (fxr *FXRouter) robotGoodsSearch(req *ReceiveMsgInfo, rsp *CallbackMsgInfo)
 }
 
 func (fxr *FXRouter) robotWithdrawal(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
-	a, err := fxr.getReqAccount(req)
+	a, wa, err := fxr.getReqAccount(req)
 	if err != nil {
 		logrus.Errorf("get req account error: %v", err)
 		return err
 	}
 	wInfo := &models.WithdrawalRecord{
-		UnionId:         a.WechatUnionId,
-		WithdrawalMoney: a.CanWithdrawals,
+		UnionId:         wa.WxId,
+		WithdrawalMoney: wa.CanWithdrawals,
 	}
-	err, ifSystemErr := fxr.backend.CreateWithdrawalRecord(wInfo, a)
+	err, ifSystemErr := fxr.backend.CreateWithdrawalRecord(wInfo, a, wa)
 	if err != nil {
 		if !ifSystemErr {
 			rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
@@ -380,7 +404,7 @@ func (fxr *FXRouter) robotWithdrawal(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) 
 		NickName:   req.BaseInfo.FromNickName,
 		UserName:   req.BaseInfo.FromUserName,
 		MsgType:    MSG_TYPE_TEXT,
-		Msg: fmt.Sprintf(CALLBACK_WITHDRAWAL_SUCCESS, a.Name, int64(a.CanWithdrawals), withdrawalMoney,
+		Msg: fmt.Sprintf(CALLBACK_WITHDRAWAL_SUCCESS, wa.Name, int64(wa.CanWithdrawals), withdrawalMoney,
 			fxr.cfg.WithdrawalPolicy.MonthWithdrawalTime, fxr.cfg.WithdrawalPolicy.MinimumWithdrawal),
 	})
 	rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
@@ -388,7 +412,7 @@ func (fxr *FXRouter) robotWithdrawal(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) 
 		ChatType:   CHAT_TYPE_PEOPLE,
 		NickName:   fxr.cfg.WithdrawalPolicy.NotifyPeople,
 		MsgType:    MSG_TYPE_TEXT,
-		Msg: fmt.Sprintf(CALLBACK_WITHDRAWAL_NOTIFY, req.BaseInfo.WechatNick, a.Name, a.Wechat, withdrawalMoney,
+		Msg: fmt.Sprintf(CALLBACK_WITHDRAWAL_NOTIFY, req.BaseInfo.WechatNick, wa.Name, wa.Wechat, withdrawalMoney,
 			time.Now().Format("2006-01-02 15:04:05")),
 	})
 

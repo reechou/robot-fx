@@ -157,7 +157,7 @@ func (self *TaobaoOrderCheck) ParseAlimamaExcel(ali string, t int) {
 		// create order
 		if !has {
 			order.AccountId = account.ID
-			order.UnionId = account.WechatUnionId
+			order.UnionId = account.WxId
 			order.OrderName = v[2]
 			order.ReturnMoney = float32(returnMoney)
 			err = self.fom.CreateFxOrder(order)

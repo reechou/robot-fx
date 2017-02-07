@@ -71,13 +71,23 @@ func (self *TaobaoOrderCheck) TaobaoOrder(reqOrder *fx_models.TaobaoOrder) error
 	}
 	// create order
 	if !has {
-		order.AccountId = account.ID
-		order.UnionId = account.WxId
-		order.OrderName = reqOrder.GoodsInfo
-		order.ReturnMoney = reqOrder.PredictingEffect
-		err = self.fom.CreateFxOrder(order)
+		fxWxAccount := &fx_models.FxWxAccount{
+			WxId: account.WxId,
+		}
+		wxHas, err := fx_models.GetFxWxAccount(fxWxAccount)
 		if err != nil {
-			logrus.Errorf("create order error: %v", err)
+			logrus.Errorf("get fx wx account: %v", err)
+		} else {
+			if wxHas {
+				order.AccountId = fxWxAccount.ID
+				order.UnionId = fxWxAccount.WxId
+				order.OrderName = reqOrder.GoodsInfo
+				order.ReturnMoney = reqOrder.PredictingEffect
+				err = self.fom.CreateFxOrder(order)
+				if err != nil {
+					logrus.Errorf("create order error: %v", err)
+				}
+			}
 		}
 	}
 	// update or insert tao order

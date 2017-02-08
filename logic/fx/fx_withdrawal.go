@@ -161,3 +161,63 @@ func (fxr *FXRouter) getFxWithdrawalRecordErrorListFromName(ctx context.Context,
 
 	return utils.WriteJSON(w, http.StatusOK, rsp)
 }
+
+func (fxr *FXRouter) getFxWithdrawalRecordAll(ctx context.Context, w http.ResponseWriter, r *http.Request, vars map[string]string) error {
+	if err := utils.ParseForm(r); err != nil {
+		return err
+	}
+
+	req := &getWithdrawalListAllReq{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		return err
+	}
+
+	rsp := &FxResponse{Code: RspCodeOK}
+
+	type FxWithdrawalRecordAll struct {
+		Count int64                     `json:"count"`
+		List  []models.WithdrawalRecord `json:"list"`
+	}
+	count, err := models.GetWithdrawalRecordAllCount(req.Status)
+	if err != nil {
+		logrus.Errorf("Error get fx withdrawal recored all count: %v", err)
+		rsp.Code = RspCodeErr
+		rsp.Msg = fmt.Sprintf("Error get fx withdrawal recored all count: %v", err)
+	} else {
+		list, err := models.GetWithdrawalRecordAll(req.Offset, req.Num, req.Status)
+		if err != nil {
+			logrus.Errorf("Error get fx withdrawal record all: %v", err)
+			rsp.Code = RspCodeErr
+			rsp.Msg = fmt.Sprintf("Error get fx withdrawal record all: %v", err)
+		} else {
+			var listInfo FxWithdrawalRecordAll
+			listInfo.Count = count
+			listInfo.List = list
+			rsp.Data = listInfo
+		}
+	}
+
+	return utils.WriteJSON(w, http.StatusOK, rsp)
+}
+
+func (fxr *FXRouter) confirmWithdrawalRecord(ctx context.Context, w http.ResponseWriter, r *http.Request, vars map[string]string) error {
+	if err := utils.ParseForm(r); err != nil {
+		return err
+	}
+	
+	req := &confirmWithdrawalReq{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		return err
+	}
+	
+	rsp := &FxResponse{Code: RspCodeOK}
+	
+	err := fxr.backend.ConfirmWithdrawal(req.Id)
+	if err != nil {
+		logrus.Errorf("confirm withdrawal record[%v] error: %v", req, err)
+		rsp.Code = RspCodeErr
+		rsp.Msg = fmt.Sprintf("confirm withdrawal record error: %v", err)
+	}
+	
+	return utils.WriteJSON(w, http.StatusOK, rsp)
+}

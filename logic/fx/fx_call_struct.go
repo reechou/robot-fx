@@ -140,6 +140,16 @@ type getWithdrawalErrorListFromNameReq struct {
 	Name string `json:"name"`
 }
 
+type getWithdrawalListAllReq struct {
+	Offset int64 `json:"offset"`
+	Num    int64 `json:"num"`
+	Status int64 `json:"status"`
+}
+
+type confirmWithdrawalReq struct {
+	Id int64 `json:"id"`
+}
+
 type FxResponse struct {
 	Code int64       `json:"code"`
 	Msg  string      `json:"msg,omitempty"`

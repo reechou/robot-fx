@@ -141,3 +141,7 @@ func (daemon *Daemon) GetWithdrawalErrorRecordListFromName(name string) ([]model
 	}
 	return list, nil
 }
+
+func (daemon *Daemon) ConfirmWithdrawal(id int64) error {
+	return models.UpdateWithdrawalRecord(id, WITHDRAWAL_DONE)
+}

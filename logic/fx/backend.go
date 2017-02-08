@@ -50,6 +50,7 @@ type fxWithdrawalBackend interface {
 	GetWithdrawalRecordList(unionId string, offset, num, status int64) ([]models.WithdrawalRecord, error)
 	GetWithdrawalRecordListById(accountId int64, offset, num int64) ([]models.WithdrawalRecord, error)
 	GetWithdrawalRecordSum(unionId string) (float32, error)
+	ConfirmWithdrawal(id int64) error
 	GetWithdrawalErrorRecordListCount() (int64, error)
 	GetWithdrawalErrorRecordList(offset, num int64) ([]models.WithdrawalRecordError, error)
 	GetWithdrawalErrorRecordListFromName(name string) ([]models.WithdrawalRecordError, error)

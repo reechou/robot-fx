@@ -61,6 +61,45 @@ func UpdateWithdrawalRecordStatus(info *WithdrawalRecord) error {
 	return err
 }
 
+func GetWithdrawalRecordAllCount(status int64) (int64, error) {
+	var count int64
+	var err error
+	if status == 0 {
+		count, err = x.Count(&WithdrawalRecord{})
+	} else {
+		count, err = x.Where("status = ?", status).Count(&WithdrawalRecord{})
+	}
+	if err != nil {
+		logrus.Errorf("get withdrawal record all count error: %v", err)
+		return 0, err
+	}
+	return count, nil
+}
+
+func GetWithdrawalRecordAll(offset, num, status int64) ([]WithdrawalRecord, error) {
+	var list []WithdrawalRecord
+	var err error
+	if status == 0 {
+		err = x.Limit(int(num), int(offset)).Find(&list)
+	} else {
+		err = x.Where("status = ?", status).Limit(int(num), int(offset)).Find(&list)
+	}
+	if err != nil {
+		logrus.Errorf("get withdrawal record all list error: %v", err)
+		return nil, err
+	}
+	return list, nil
+}
+
+func UpdateWithdrawalRecord(id, status int64) error {
+	info := &WithdrawalRecord{
+		Status: status,
+	}
+	info.UpdatedAt = time.Now().Unix()
+	_, err := x.Cols("status", "updated_at").Update(info, &WithdrawalRecord{ID: id})
+	return err
+}
+
 func GetWithdrawalRecordListCount(unionId string, status int64) (int64, error) {
 	var count int64
 	var err error

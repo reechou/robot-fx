@@ -18,7 +18,9 @@ const (
 	FX_ORDER_SETTLEMENT = 4 // 淘宝结算
 )
 
+// 提现状态
 const (
+	WITHDRAWAL_ALL     = 0 // 所有提现状态
 	WITHDRAWAL_DONE    = 1 // 提现完成
 	WITHDRAWAL_WAITING = 2 // 审核中
 	WITHDRAWAL_FAIL    = 3 // 提现失败

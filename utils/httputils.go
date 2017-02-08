@@ -130,6 +130,10 @@ func WriteError(w http.ResponseWriter, err error) {
 }
 
 func WriteJSON(w http.ResponseWriter, code int, v interface{}) error {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST")
+	w.Header().Set("Access-Control-Allow-Headers", "x-requested-with,content-type")
+	
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	return json.NewEncoder(w).Encode(v)

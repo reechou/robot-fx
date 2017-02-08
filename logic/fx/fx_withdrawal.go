@@ -221,3 +221,8 @@ func (fxr *FXRouter) confirmWithdrawalRecord(ctx context.Context, w http.Respons
 	
 	return utils.WriteJSON(w, http.StatusOK, rsp)
 }
+
+func (fxr *FXRouter) optionCall(ctx context.Context, w http.ResponseWriter, r *http.Request, vars map[string]string) error {
+	rsp := &FxResponse{Code: RspCodeOK}
+	return utils.WriteJSON(w, http.StatusOK, rsp)
+}

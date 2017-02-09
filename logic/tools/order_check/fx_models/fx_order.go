@@ -17,6 +17,7 @@ type FxOrder struct {
 	OrderName   string  `xorm:"not null default '' varchar(128)"`
 	Price       float32 `xorm:"not null default 0.00 float(9,2) unique(uni_fx_order_id)"`
 	ReturnMoney float32 `xorm:"not null default 0.00 float(9,2)" json:"-"`
+	AdName      string  `xorm:"varchar(128) not null default ''"`
 	Status      int64   `xorm:"not null default 0 int index"`
 	CreatedAt   int64   `xorm:"not null default 0 int index"`
 	UpdatedAt   int64   `xorm:"not null default 0 int"`

@@ -40,6 +40,10 @@ type DuobbSrv struct {
 	Host string
 }
 
+type WxRobotSrv struct {
+	Host string
+}
+
 type Config struct {
 	Debug   bool
 	Path    string
@@ -54,6 +58,7 @@ type Config struct {
 	Score
 	Act
 	DuobbSrv
+	WxRobotSrv
 }
 
 func NewConfig() *Config {

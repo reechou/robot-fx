@@ -83,6 +83,7 @@ func (self *TaobaoOrderCheck) TaobaoOrder(reqOrder *fx_models.TaobaoOrder) error
 				order.UnionId = fxWxAccount.WxId
 				order.OrderName = reqOrder.GoodsInfo
 				order.ReturnMoney = reqOrder.PredictingEffect
+				order.AdName = reqOrder.AdName
 				err = self.fom.CreateFxOrder(order)
 				if err != nil {
 					logrus.Errorf("create order error: %v", err)

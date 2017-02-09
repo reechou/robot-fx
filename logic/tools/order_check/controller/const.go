@@ -68,3 +68,10 @@ const (
 const (
 	ALIMAMA_GET_TBK_PAYMENT = "http://pub.alimama.com/report/getTbkPaymentDetails.json?queryType=1&payStatus=&DownloadID=DOWNLOAD_REPORT_INCOME_NEW&startTime=%s&endTime=%s"
 )
+
+const (
+	NOTIFY_MSG_CREATE_ORDER_OWNER     = "您好,您的订单 %s**** 系统已生成, 该订单为您返利待确认积分约为 %d 积分\n收货好评后,待确认积分会自动变为可提现积分"
+	NOTIFY_MSG_CREATE_ORDER_UPPER     = "您好,您的 %d级下线[%s] 订单 %s**** 系统已生成, 该下线订单为您返利待确认积分约为 %d 积分"
+	NOTIFY_MSG_SETTLEMENT_ORDER_OWNER = "您好,您的订单 %s**** 系统已结算, 该订单为您返利积分约为 %d 积分,已自动结算到您的可提现积分"
+	NOTIFY_MSG_SETTLEMENT_ORDER_UPPER = "您好,您的 %d级下线[%s] 订单 %s**** 系统已结算, 该下线订单为您返利积分约为 %d 积分,已自动结算到您的可提现积分"
+)

@@ -3,19 +3,23 @@ package controller
 import (
 	"fmt"
 	"time"
+	"strings"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/reechou/robot-fx/logic/tools/order_check/config"
 	"github.com/reechou/robot-fx/logic/tools/order_check/fx_models"
+	"github.com/reechou/robot-fx/logic/tools/order_check/ext"
 )
 
 type FxOrderManager struct {
 	cfg *config.Config
+	wrExt *ext.WxRobotExt
 }
 
-func NewFxOrderManager(cfg *config.Config) *FxOrderManager {
+func NewFxOrderManager(cfg *config.Config, wrExt *ext.WxRobotExt) *FxOrderManager {
 	fom := &FxOrderManager{
 		cfg: cfg,
+		wrExt: wrExt,
 	}
 	return fom
 }
@@ -39,6 +43,13 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 		levelReturns = append(levelReturns, lReturn)
 	}
 
+	var notifyMsgs []ext.SendBaseInfo
+	var robotWx string
+	adList := strings.Split(info.AdName, ext.UNION_ID_DELIMITER)
+	if len(adList) == 2 {
+		robotWx = adList[0]
+	}
+	
 	now := time.Now().Unix()
 	var recordList []fx_models.FxOrderWaitSettlementRecord
 	recordList = append(recordList, fx_models.FxOrderWaitSettlementRecord{
@@ -65,6 +76,10 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 		logrus.Errorf("create order no this owern account wx_id[%s]", info.UnionId)
 		return fmt.Errorf("create order no this owern account wx_id[%s]", info.UnionId)
 	}
+	
+	notifyMsgs = append(notifyMsgs, ext.SendBaseInfo{
+		WechatNick: robotWx,
+	})
 
 	unionId := fxWxAccount.Superior
 	for i := 1; i < len(levelReturns); i++ {

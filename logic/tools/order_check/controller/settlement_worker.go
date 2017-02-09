@@ -9,6 +9,7 @@ import (
 	"github.com/reechou/robot-fx/logic/tools/order_check/act"
 	"github.com/reechou/robot-fx/logic/tools/order_check/config"
 	"github.com/reechou/robot-fx/logic/tools/order_check/fx_models"
+	"github.com/reechou/robot-fx/logic/tools/order_check/ext"
 )
 
 type SettlementWorker struct {
@@ -16,16 +17,18 @@ type SettlementWorker struct {
 
 	cfg *config.Config
 	act *act.ActLogic
+	wrExt *ext.WxRobotExt
 
 	wg   sync.WaitGroup
 	stop chan struct{}
 }
 
-func NewSettlementWorker(maxWorker, maxChanLen int, cfg *config.Config) *SettlementWorker {
+func NewSettlementWorker(maxWorker, maxChanLen int, cfg *config.Config, wrExt *ext.WxRobotExt) *SettlementWorker {
 	sw := &SettlementWorker{
 		cfg:  cfg,
 		stop: make(chan struct{}),
 		act:  act.NewActLogic(cfg),
+		wrExt: wrExt,
 	}
 	for i := 0; i < maxWorker; i++ {
 		orderChan := make(chan *fx_models.FxOrder, maxChanLen)

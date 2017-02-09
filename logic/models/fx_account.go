@@ -60,6 +60,12 @@ func CreateFxWxAccount(info *FxWxAccount) error {
 	return nil
 }
 
+func UpdateFxWxAccountName(info *FxWxAccount) error {
+	info.UpdatedAt = time.Now().Unix()
+	_, err := x.Cols("name", "updated_at").Update(info, &FxWxAccount{WxId: info.WxId})
+	return err
+}
+
 func GetFxWxAccount(info *FxWxAccount) (bool, error) {
 	has, err := x.Where("wx_id = ?", info.WxId).Get(info)
 	if err != nil {
@@ -142,6 +148,43 @@ func GetFxWxLowerPeople(wxid string, offset, num int64) ([]FxWxAccount, error) {
 	return lowerPeoples, nil
 }
 
+func GetFxAccountRobot() ([]string, error) {
+	results, err := x.Query("select robot_wx from fx_account group by robot_wx")
+	if err != nil {
+		logrus.Errorf("get fx account robot error: %v", err)
+		return nil, err
+	}
+	if len(results) == 0 {
+		return nil, nil
+	}
+	var list []string
+	for _, v := range results {
+		robot := v["robot_wx"]
+		if robot != nil {
+			list = append(list, string(robot))
+		}
+	}
+	return list, nil
+}
+
+func GetFxAccountCountFromRobot(robot string) (int64, error) {
+	count, err := x.Where("robot_wx = ?", robot).Count(&FxAccount{})
+	if err != nil {
+		logrus.Errorf("robot[%s] get account count error: %v", robot, err)
+		return 0, err
+	}
+	return count, nil
+}
+
+func GetFxAccountListFromRobot(robot string, offset, num int64) ([]FxAccount, error) {
+	var list []FxAccount
+	err := x.Where("robot_wx = ?", robot).Limit(int(num), int(offset)).Find(&list)
+	if err != nil {
+		logrus.Errorf("get fx account list from robox error: %v", err)
+		return nil, err
+	}
+	return list, nil
+}
 
 func CreateFxAccount(info *FxAccount) (err error) {
 	if info.UnionId == "" {

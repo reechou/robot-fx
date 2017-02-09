@@ -133,6 +133,14 @@ func (fxr *FXRouter) robotAddFriend(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) e
 				logrus.Errorf("update fx account name[%v] error: %v", account, err)
 				return err
 			}
+			updateFxWxAccount := &models.FxWxAccount{
+				WxId: account.WxId,
+				Name: req.BaseInfo.FromNickName,
+			}
+			err = models.UpdateFxWxAccountName(updateFxWxAccount)
+			if err != nil {
+				logrus.Errorf("update fx wx account name[%v] error: %v", updateFxWxAccount, err)
+			}
 		}
 		return nil
 	}

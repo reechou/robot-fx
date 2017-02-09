@@ -227,3 +227,55 @@ func (fxr *FXRouter) getFxAccountRank(ctx context.Context, w http.ResponseWriter
 
 	return utils.WriteJSON(w, http.StatusOK, rsp)
 }
+
+func (fxr *FXRouter) getRobotList(ctx context.Context, w http.ResponseWriter, r *http.Request, vars map[string]string) error {
+	rsp := &FxResponse{Code: RspCodeOK}
+	list, err := models.GetFxAccountRobot()
+	if err != nil {
+		logrus.Errorf("Error get fx account robot list: %v", err)
+		rsp.Code = RspCodeErr
+		rsp.Msg = fmt.Sprintf("Error get fx account robot list: %v", err)
+	} else {
+		rsp.Data = list
+	}
+	
+	return utils.WriteJSON(w, http.StatusOK, rsp)
+}
+
+func (fxr *FXRouter) getAccountListOfRobot(ctx context.Context, w http.ResponseWriter, r *http.Request, vars map[string]string) error {
+	if err := utils.ParseForm(r); err != nil {
+		return err
+	}
+	
+	req := &getAccountListFromRobotReq{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		return err
+	}
+	
+	rsp := &FxResponse{Code: RspCodeOK}
+	
+	type FxAccountListFromRobotList struct {
+		Count int64              `json:"count"`
+		List  []models.FxAccount `json:"list"`
+	}
+	count, err := models.GetFxAccountCountFromRobot(req.Robot)
+	if err != nil {
+		logrus.Errorf("Error get fx people list from robot count: %v", err)
+		rsp.Code = RspCodeErr
+		rsp.Msg = fmt.Sprintf("Error get fx people list from robot count: %v", err)
+	} else {
+		list, err := models.GetFxAccountListFromRobot(req.Robot, req.Offset, req.Num)
+		if err != nil {
+			logrus.Errorf("Error get fx people list from robot: %v", err)
+			rsp.Code = RspCodeErr
+			rsp.Msg = fmt.Sprintf("Error get fx people list from robot: %v", err)
+		} else {
+			var listInfo FxAccountListFromRobotList
+			listInfo.Count = count
+			listInfo.List = list
+			rsp.Data = listInfo
+		}
+	}
+	
+	return utils.WriteJSON(w, http.StatusOK, rsp)
+}

@@ -12,7 +12,7 @@ import (
 )
 
 func (fxr *FXRouter) getReqAccount(req *ReceiveMsgInfo) (*models.FxAccount, *models.FxWxAccount, error) {
-	req.BaseInfo.FromNickName = fxr.filterEmoji(req.BaseInfo.FromNickName)
+	//req.BaseInfo.FromNickName = fxr.filterEmoji(req.BaseInfo.FromNickName)
 
 	account := &models.FxAccount{RobotWx: req.BaseInfo.WechatNick, UserName: req.BaseInfo.FromUserName}
 	has, err := models.GetFxAccountFromUserName(account)
@@ -28,6 +28,14 @@ func (fxr *FXRouter) getReqAccount(req *ReceiveMsgInfo) (*models.FxAccount, *mod
 			if err != nil {
 				logrus.Errorf("update fx account name[%v] error: %v", account, err)
 				return nil, nil, err
+			}
+			updateFxWxAccount := &models.FxWxAccount{
+				WxId: account.WxId,
+				Name: req.BaseInfo.FromNickName,
+			}
+			err = models.UpdateFxWxAccountName(updateFxWxAccount)
+			if err != nil {
+				logrus.Errorf("update fx wx account name[%v] error: %v", updateFxWxAccount, err)
 			}
 		}
 		fxWxAccount := &models.FxWxAccount{

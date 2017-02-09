@@ -150,6 +150,12 @@ type confirmWithdrawalReq struct {
 	Id int64 `json:"id"`
 }
 
+type getAccountListFromRobotReq struct {
+	Robot  string `json:"robot"`
+	Offset int64  `json:"offset"`
+	Num    int64  `json:"num"`
+}
+
 type FxResponse struct {
 	Code int64       `json:"code"`
 	Msg  string      `json:"msg,omitempty"`

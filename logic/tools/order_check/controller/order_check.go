@@ -7,6 +7,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/reechou/robot-fx/logic/tools/order_check/config"
 	"github.com/reechou/robot-fx/logic/tools/order_check/fx_models"
+	"github.com/reechou/robot-fx/logic/tools/order_check/ext"
 	"github.com/reechou/robot-fx/utils"
 )
 
@@ -17,6 +18,8 @@ type OrderCheck struct {
 	toc *TaobaoOrderCheck
 	fom *FxOrderManager
 	ohs *OrderHttpSrv
+	
+	wrExt *ext.WxRobotExt
 
 	wg   sync.WaitGroup
 	stop chan struct{}
@@ -33,14 +36,19 @@ func NewOrderCheck(cfg *config.Config) *OrderCheck {
 		stop: make(chan struct{}),
 		done: make(chan struct{}),
 	}
-	ocw.sw = NewSettlementWorker(cfg.WorkerInfo.SWMaxWorker, cfg.WorkerInfo.SWMaxChanLen, cfg)
-	ocw.fom = NewFxOrderManager(cfg)
+	ocw.wrExt = ext.NewWxRobotExt(cfg)
+	ocw.sw = NewSettlementWorker(cfg.WorkerInfo.SWMaxWorker, cfg.WorkerInfo.SWMaxChanLen, cfg, ocw.wrExt)
+	ocw.fom = NewFxOrderManager(cfg, ocw.wrExt)
 	ocw.toc = NewTaobaoOrderCheck(cfg, ocw.fom)
 	ocw.ohs = NewOrderHTTPServer(cfg, ocw.toc)
 
 	fx_models.InitDB(cfg)
 
 	return ocw
+}
+
+func (ocw *OrderCheck) SendMsgs(msgs *ext.SendMsgInfo) {
+	ocw.wrExt.SendMsg(msgs)
 }
 
 func (ocw *OrderCheck) Stop() {

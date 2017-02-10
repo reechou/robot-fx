@@ -42,13 +42,6 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 		lReturn := info.ReturnMoney * GodRate * float32(self.cfg.LevelPer[i]) / 100.0 * float32(self.cfg.Score.EnlargeScale)
 		levelReturns = append(levelReturns, lReturn)
 	}
-
-	var notifyMsgs ext.SendMsgInfo
-	var robotWx string
-	adList := strings.Split(info.AdName, ext.UNION_ID_DELIMITER)
-	if len(adList) == 2 {
-		robotWx = adList[0]
-	}
 	
 	now := time.Now().Unix()
 	var recordList []fx_models.FxOrderWaitSettlementRecord
@@ -77,10 +70,17 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 		return fmt.Errorf("create order no this owern account wx_id[%s]", info.UnionId)
 	}
 	
+	var robotWx string
+	adList := strings.Split(info.AdName, ext.UNION_ID_DELIMITER)
+	if len(adList) == 2 {
+		robotWx = adList[0]
+	}
+	orderOwnerName := fxWxAccount.Name
+	var notifyMsgs ext.SendMsgInfo
 	notifyMsgs.SendMsgs = append(notifyMsgs.SendMsgs, ext.SendBaseInfo{
 		WechatNick: robotWx,
 		ChatType:   ext.CHAT_TYPE_PEOPLE,
-		NickName:   fxWxAccount.Name,
+		NickName:   orderOwnerName,
 		MsgType:    ext.MSG_TYPE_TEXT,
 		Msg:        fmt.Sprintf(NOTIFY_MSG_CREATE_ORDER_OWNER, info.OrderId[:4], int64(levelReturns[0])),
 	})
@@ -121,7 +121,7 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 			ChatType:   ext.CHAT_TYPE_PEOPLE,
 			NickName:   fxWxAccount.Name,
 			MsgType:    ext.MSG_TYPE_TEXT,
-			Msg:        fmt.Sprintf(NOTIFY_MSG_CREATE_ORDER_UPPER, i, fxWxAccount.Name, info.OrderId[:4], int64(levelReturns[i])),
+			Msg:        fmt.Sprintf(NOTIFY_MSG_CREATE_ORDER_UPPER, i, orderOwnerName, info.OrderId[:4], int64(levelReturns[i])),
 		})
 
 		unionId = fxWxAccount.Superior
@@ -133,7 +133,7 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 		return err
 	}
 	
-	err = self.wrExt.SendMsg(notifyMsgs)
+	err = self.wrExt.SendMsg(&notifyMsgs)
 	if err != nil {
 		logrus.Errorf("send notify msg error: %v", err)
 	}

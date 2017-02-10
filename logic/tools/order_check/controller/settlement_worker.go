@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"strings"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/reechou/robot-fx/logic/tools/order_check/act"
@@ -157,6 +158,21 @@ func (sw *SettlementWorker) do(order *fx_models.FxOrder) {
 		ChangeDesc: FxHistoryDescs[FX_HISTORY_TYPE_ORDER_0],
 		CreatedAt:  now,
 	})
+	
+	var robotWx string
+	adList := strings.Split(order.AdName, ext.UNION_ID_DELIMITER)
+	if len(adList) == 2 {
+		robotWx = adList[0]
+	}
+	orderOwnerName := orderFxWxAccount.Name
+	var notifyMsgs ext.SendMsgInfo
+	notifyMsgs.SendMsgs = append(notifyMsgs.SendMsgs, ext.SendBaseInfo{
+		WechatNick: robotWx,
+		ChatType:   ext.CHAT_TYPE_PEOPLE,
+		NickName:   orderOwnerName,
+		MsgType:    ext.MSG_TYPE_TEXT,
+		Msg:        fmt.Sprintf(NOTIFY_MSG_SETTLEMENT_ORDER_OWNER, order.OrderId[:4], int64(levelReturns[0])),
+	})
 
 	var upperFxAccount *fx_models.FxWxAccount
 
@@ -218,6 +234,15 @@ func (sw *SettlementWorker) do(order *fx_models.FxOrder) {
 			ChangeDesc: fmt.Sprintf(FxHistoryDescs[FX_HISTORY_TYPE_ORDER_0+i], fxWxAccount.Name),
 			CreatedAt:  now,
 		})
+		
+		notifyMsgs.SendMsgs = append(notifyMsgs.SendMsgs, ext.SendBaseInfo{
+			WechatNick: robotWx,
+			ChatType:   ext.CHAT_TYPE_PEOPLE,
+			NickName:   fxWxAccount.Name,
+			MsgType:    ext.MSG_TYPE_TEXT,
+			Msg:        fmt.Sprintf(NOTIFY_MSG_SETTLEMENT_ORDER_UPPER, i, orderOwnerName, order.OrderId[:4], int64(levelReturns[i])),
+		})
+		
 		unionId = fxWxAccount.Superior
 	}
 
@@ -229,6 +254,10 @@ func (sw *SettlementWorker) do(order *fx_models.FxOrder) {
 	err = fx_models.CreateFxAccountHistoryList(historyList)
 	if err != nil {
 		logrus.Errorf("create fx order[%v] fx account history list error: %v", order, err)
+	}
+	err = sw.wrExt.SendMsg(&notifyMsgs)
+	if err != nil {
+		logrus.Errorf("send notify msg error: %v", err)
 	}
 	// check order act
 	sw.act.CheckActOfOrder(orderFxWxAccount, upperFxAccount)

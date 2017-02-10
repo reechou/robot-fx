@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"fmt"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/reechou/robot-fx/logic/tools/order_check/config"
@@ -30,6 +31,8 @@ func NewWxRobotExt(cfg *config.Config) *WxRobotExt {
 
 func (we *WxRobotExt) SendMsg(info *SendMsgInfo) error {
 	u := "http://" + we.cfg.WxRobotSrv.Host + URI_WX_ROBOT_SEND_MSG
+	logrus.Debugf("wxrobot send msg: %v url: %s", info, u)
+	
 	body, err := json.Marshal(info)
 	if err != nil {
 		return err
@@ -57,11 +60,12 @@ func (we *WxRobotExt) SendMsg(info *SendMsgInfo) error {
 	var response SendMsgResponse
 	err = json.Unmarshal(rspBody, &response)
 	if err != nil {
-		logrus.Errorf("goods search json decode error: %s", string(rspBody))
+		logrus.Errorf("wxrobot send msgs json decode error: %s", string(rspBody))
 		return err
 	}
 	if response.Code != 0 {
-
+		logrus.Errorf("wxrobot send msgs error code[%d].", response.Code)
+		return fmt.Errorf("wxrobot send msgs error code[%d].", response.Code)
 	}
 
 	return nil

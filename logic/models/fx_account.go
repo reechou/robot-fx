@@ -21,7 +21,7 @@ type FxAccount struct {
 	Superior       string  `xorm:"not null default '' varchar(128) index"`  // 上级
 	MemberId       string  `xorm:"not null default '' varchar(32)"`         // 阿里妈妈用户id
 	GuideId        string  `xorm:"not null default '' varchar(32)"`         // 导购位
-	AdzoneId       string  `xorm:"not null default '' varchar(32)"`         // 广告位
+	AdzoneId       string  `xorm:"not null default '' varchar(32) index"`   // 广告位
 	SignTime       int64   `xorm:"not null default 0 int index"`
 	Status         int64   `xorm:"not null default 0 int"`
 	CreatedAt      int64   `xorm:"not null default 0 int index"`

@@ -118,9 +118,9 @@ func (fxr *FXRouter) robotSign(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error 
 			MsgType:    MSG_TYPE_TEXT,
 		}
 		if affected == 0 {
-			sendMsg.Msg = CALLBACK_SIGN_FAILED
+			sendMsg.Msg = fmt.Sprintf(CALLBACK_SIGN_FAILED, req.BaseInfo.FromNickName)
 		} else {
-			sendMsg.Msg = fmt.Sprintf(CALLBACK_SIGN_SUCCESS, fxr.cfg.Score.SignScore)
+			sendMsg.Msg = fmt.Sprintf(CALLBACK_SIGN_SUCCESS, req.BaseInfo.FromNickName, fxr.cfg.Score.SignScore)
 		}
 		rsp.CallbackMsgs = append(rsp.CallbackMsgs, sendMsg)
 		return nil
@@ -415,14 +415,16 @@ func (fxr *FXRouter) robotWithdrawal(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) 
 		Msg: fmt.Sprintf(CALLBACK_WITHDRAWAL_SUCCESS, wa.Name, int64(wa.CanWithdrawals), withdrawalMoney,
 			fxr.cfg.WithdrawalPolicy.MonthWithdrawalTime, fxr.cfg.WithdrawalPolicy.MinimumWithdrawal),
 	})
-	rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
-		WechatNick: req.BaseInfo.WechatNick,
-		ChatType:   CHAT_TYPE_PEOPLE,
-		NickName:   fxr.cfg.WithdrawalPolicy.NotifyPeople,
-		MsgType:    MSG_TYPE_TEXT,
-		Msg: fmt.Sprintf(CALLBACK_WITHDRAWAL_NOTIFY, req.BaseInfo.WechatNick, wa.Name, wa.Wechat, withdrawalMoney,
-			time.Now().Format("2006-01-02 15:04:05")),
-	})
+	for _, v := range fxr.cfg.WithdrawalPolicy.NotifyPeople {
+		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+			WechatNick: req.BaseInfo.WechatNick,
+			ChatType:   CHAT_TYPE_PEOPLE,
+			NickName:   v,
+			MsgType:    MSG_TYPE_TEXT,
+			Msg: fmt.Sprintf(CALLBACK_WITHDRAWAL_NOTIFY, req.BaseInfo.WechatNick, wa.Name, wa.Wechat, withdrawalMoney,
+				time.Now().Format("2006-01-02 15:04:05")),
+		})
+	}
 
 	return nil
 }

@@ -183,7 +183,7 @@ func (fxr *FXRouter) robotAddFriend(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) e
 		memberId, guideId, adzoneId, err = fxr.backend.CreateAlimamaAdzone(req.BaseInfo.WechatNick, wechatUnionId, robotAlimama.Alimama)
 		if err != nil {
 			logrus.Errorf("create alimama adzone error: %v", err)
-			return err
+			//return err
 		}
 	}
 

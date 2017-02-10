@@ -52,10 +52,10 @@ const (
 	CALLBACK_BIND_WECHAT_SUCCESS           = "[ %s ] 绑定微信号 [ %s ] 成功."
 	CALLBACK_BIND_WECHAT_FAILED            = "[ %s ] 已绑定微信号."
 	CALLBACK_ORDER_LIST_SUCCESS            = "最近订单记录如下(只显示最近10条):"
-	CALLBACK_GOODS_SEARCH_SUCCESS          = "Hi, %s\n【商品名称】\n%s\n[原价] %.02f 元\n[总优惠后价格约] %.02f 元\n" +
-		"【优惠详情】\n[总优惠] %.02f 元\n[优惠券] %.02f 元\n[返利约] %.02f 元"
+	CALLBACK_GOODS_SEARCH_SUCCESS          = "Hi, %s\n【商品名称】\n%s\n★ [原价] %.02f 元\n★ [总优惠后价格约] %.02f 元\n" +
+		"【优惠详情】\n★ [总优惠] %.02f 元\n★ [优惠券] %.02f 元\n★ [返利约] %.02f 元"
 	CALLBACK_GOODS_SEARCH_NO_QUAN_SUCCESS = "Hi, %s\n【商品名称】\n%s\n[原价] %.02f 元\n[总优惠后价格约] %.02f 元\n" +
-		"【优惠详情】\n[返利约] %.02f 元\n\n* 确认收货好评后,即可返现到可提现积分"
+		"【优惠详情】\n★ [返利约] %.02f 元\n\n* 确认收货好评后,即可返现到可提现积分"
 	CALLBACK_PLACE_ORDER        = "【***下单***】\n%s 长按复制本条信息,打开【手机淘宝】即可购买下单"
 	CALLBACK_GOODS_NO_DISCOUNT  = "hi, %s\n该商品没有优惠哦"
 	CALLBACK_WITHDRAWAL_SUCCESS = "Hi, %s\n恭喜您,成功申请提现 %d 积分, 约 %.02f 元\n客服会在24小时内发放微信红包,请耐心等待.\n" +

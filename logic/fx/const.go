@@ -35,6 +35,7 @@ const (
 
 const (
 	DEFAULT_RETURN_RATE = 50.0
+	GodRate             = 0.85
 )
 
 const (

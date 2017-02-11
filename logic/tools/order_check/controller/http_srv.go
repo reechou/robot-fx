@@ -37,7 +37,7 @@ func (self *OrderHttpSrv) Run() {
 
 func (self *OrderHttpSrv) registerHandlers() {
 	self.httpSrv.Route("/", self.Index)
-	
+
 	self.httpSrv.Route("/taobaoorder", self.httpWrap(self.TaobaoOrder))
 }
 

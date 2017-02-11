@@ -16,14 +16,17 @@ const (
 )
 
 const (
-	KEYWORD_HELP             = "帮助"
-	KEYWORD_USER_INFO        = "个人信息"
-	KEYWORD_ORDER_INFO       = "订单查询"
-	KEYWORD_WITHDRAWAL       = "提现"
-	KEYWORD_BIND_WECHAT      = "绑定微信号"
-	KEYWORD_SIGN             = "签到"
-	KEYWORD_LOWER_PEOPLE     = "下线查询"
-	KEYWORD_GOODS_SEARCH_URL = "http"
+	KEYWORD_HELP                = "帮助"
+	KEYWORD_USER_INFO           = "个人信息"
+	KEYWORD_ORDER_INFO          = "订单查询"
+	KEYWORD_WITHDRAWAL          = "提现"
+	KEYWORD_BIND_WECHAT         = "绑定微信号"
+	KEYWORD_SIGN                = "签到"
+	KEYWORD_LOWER_PEOPLE        = "下线查询"
+	KEYWORD_GOODS_SEARCH_URL    = "http"
+	KEYWORD_GOODS_SEARCH_QUERY1 = "买"
+	KEYWORD_GOODS_SEARCH_QUERY2 = "找"
+	KEYWORD_GOODS_SEARCH_NEXT   = "下一个"
 
 	KEYWORD_USER_INFO_ID    = "1"
 	KEYWORD_SIGN_ID         = "2"
@@ -55,10 +58,11 @@ const (
 	CALLBACK_ORDER_LIST_SUCCESS            = "最近订单记录如下(只显示最近10条):"
 	CALLBACK_GOODS_SEARCH_SUCCESS          = "Hi, %s\n【商品名称】\n%s\n★ [原价] %.02f 元\n★ [总优惠后价格约] %.02f 元\n" +
 		"【优惠详情】\n★ [总优惠] %.02f 元\n★ [优惠券] %.02f 元\n★ [返利约] %.02f 元\n\n* 确认收货好评后,即可返现到可提现积分"
-	CALLBACK_GOODS_SEARCH_NO_QUAN_SUCCESS  = "Hi, %s\n【商品名称】\n%s\n★ [原价] %.02f 元\n★ [总优惠后价格约] %.02f 元\n" +
+	CALLBACK_GOODS_SEARCH_NO_QUAN_SUCCESS = "Hi, %s\n【商品名称】\n%s\n★ [原价] %.02f 元\n★ [总优惠后价格约] %.02f 元\n" +
 		"【优惠详情】\n★ [返利约] %.02f 元\n\n* 确认收货好评后,即可返现到可提现积分"
 	CALLBACK_PLACE_ORDER        = "【***下单***】\n%s 长按复制本条信息,打开【手机淘宝】即可购买下单"
 	CALLBACK_GOODS_NO_DISCOUNT  = "hi, %s\n该商品没有优惠哦"
+	CALLBACK_QUERY_NO_DISCOUNT  = "hi, %s\n未找到优惠商品哦"
 	CALLBACK_WITHDRAWAL_SUCCESS = "Hi, %s\n恭喜您,成功申请提现 %d 积分, 约 %.02f 元\n客服会在24小时内发放微信红包,请耐心等待.\n" +
 		"每个月最多提现 %d 次.\n每次提现最少提现 %d 积分."
 	CALLBACK_WITHDRAWAL_POLICY = "每个月最多提现 %d 次.\n每次提现最少提现 %d 积分."

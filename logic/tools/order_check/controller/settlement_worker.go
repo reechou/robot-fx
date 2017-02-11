@@ -2,22 +2,22 @@ package controller
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 	"time"
-	"strings"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/reechou/robot-fx/logic/tools/order_check/act"
 	"github.com/reechou/robot-fx/logic/tools/order_check/config"
-	"github.com/reechou/robot-fx/logic/tools/order_check/fx_models"
 	"github.com/reechou/robot-fx/logic/tools/order_check/ext"
+	"github.com/reechou/robot-fx/logic/tools/order_check/fx_models"
 )
 
 type SettlementWorker struct {
 	orderChanList []chan *fx_models.FxOrder
 
-	cfg *config.Config
-	act *act.ActLogic
+	cfg   *config.Config
+	act   *act.ActLogic
 	wrExt *ext.WxRobotExt
 
 	wg   sync.WaitGroup
@@ -26,9 +26,9 @@ type SettlementWorker struct {
 
 func NewSettlementWorker(maxWorker, maxChanLen int, cfg *config.Config, wrExt *ext.WxRobotExt) *SettlementWorker {
 	sw := &SettlementWorker{
-		cfg:  cfg,
-		stop: make(chan struct{}),
-		act:  act.NewActLogic(cfg),
+		cfg:   cfg,
+		stop:  make(chan struct{}),
+		act:   act.NewActLogic(cfg),
 		wrExt: wrExt,
 	}
 	for i := 0; i < maxWorker; i++ {
@@ -158,7 +158,7 @@ func (sw *SettlementWorker) do(order *fx_models.FxOrder) {
 		ChangeDesc: FxHistoryDescs[FX_HISTORY_TYPE_ORDER_0],
 		CreatedAt:  now,
 	})
-	
+
 	var robotWx string
 	adList := strings.Split(order.AdName, ext.UNION_ID_DELIMITER)
 	if len(adList) == 2 {
@@ -234,7 +234,7 @@ func (sw *SettlementWorker) do(order *fx_models.FxOrder) {
 			ChangeDesc: fmt.Sprintf(FxHistoryDescs[FX_HISTORY_TYPE_ORDER_0+i], fxWxAccount.Name),
 			CreatedAt:  now,
 		})
-		
+
 		notifyMsgs.SendMsgs = append(notifyMsgs.SendMsgs, ext.SendBaseInfo{
 			WechatNick: robotWx,
 			ChatType:   ext.CHAT_TYPE_PEOPLE,
@@ -242,7 +242,7 @@ func (sw *SettlementWorker) do(order *fx_models.FxOrder) {
 			MsgType:    ext.MSG_TYPE_TEXT,
 			Msg:        fmt.Sprintf(NOTIFY_MSG_SETTLEMENT_ORDER_UPPER, i, orderOwnerName, order.OrderId[:4], int64(levelReturns[i])),
 		})
-		
+
 		unionId = fxWxAccount.Superior
 	}
 

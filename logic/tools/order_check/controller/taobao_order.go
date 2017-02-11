@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
-	"time"
 	"strings"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/extrame/xls"
@@ -45,7 +45,7 @@ func (self *TaobaoOrderCheck) TaobaoOrder(reqOrder *fx_models.TaobaoOrder) error
 	if reqOrder.OrderState == TAOBAO_ORDER_INVALID {
 		return nil
 	}
-	
+
 	account := &fx_models.FxAccount{
 		WechatUnionId: reqOrder.AdName,
 	}
@@ -58,7 +58,7 @@ func (self *TaobaoOrderCheck) TaobaoOrder(reqOrder *fx_models.TaobaoOrder) error
 		return nil
 	}
 	logrus.Debugf("valid order: %v", reqOrder)
-	
+
 	order := &fx_models.FxOrder{
 		OrderId: reqOrder.OrderId,
 		GoodsId: reqOrder.GoodsId,
@@ -118,11 +118,9 @@ func (self *TaobaoOrderCheck) TaobaoOrder(reqOrder *fx_models.TaobaoOrder) error
 		logrus.Errorf("create taobao order error: %v", err)
 		return err
 	}
-	
+
 	return nil
 }
-
-
 
 func (self *TaobaoOrderCheck) run() {
 	logrus.Debugf("taobao order check run start.")
@@ -145,7 +143,7 @@ func (self *TaobaoOrderCheck) runCheck() {
 		self.oneDayTimes = 0
 	}
 	self.oneDayTimes++
-	
+
 	alimamaList, err := fx_models.GetFxRobotAlimamaList()
 	if err != nil {
 		logrus.Errorf("get fx robot alimama list error: %v", err)

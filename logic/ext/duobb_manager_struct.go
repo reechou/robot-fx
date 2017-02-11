@@ -14,12 +14,13 @@ var (
 )
 
 type GoodsSearchReq struct {
-	Query    string `json:"q"`
+	Query    string `json:"q,omitempty"`
 	Alimama  string `json:"userName"`
 	Pid      string `json:"pid"`
 	AdzoneId string `json:"adzoneid"`
 	SiteId   string `json:"siteid"`
-	Url      string `json:"url"`
+	Url      string `json:"url,omitempty"`
+	Offset   int64  `json:"offset"`
 }
 
 type GoodsSearchData struct {

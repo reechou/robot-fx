@@ -2,23 +2,23 @@ package controller
 
 import (
 	"fmt"
-	"time"
 	"strings"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/reechou/robot-fx/logic/tools/order_check/config"
-	"github.com/reechou/robot-fx/logic/tools/order_check/fx_models"
 	"github.com/reechou/robot-fx/logic/tools/order_check/ext"
+	"github.com/reechou/robot-fx/logic/tools/order_check/fx_models"
 )
 
 type FxOrderManager struct {
-	cfg *config.Config
+	cfg   *config.Config
 	wrExt *ext.WxRobotExt
 }
 
 func NewFxOrderManager(cfg *config.Config, wrExt *ext.WxRobotExt) *FxOrderManager {
 	fom := &FxOrderManager{
-		cfg: cfg,
+		cfg:   cfg,
 		wrExt: wrExt,
 	}
 	return fom
@@ -42,7 +42,7 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 		lReturn := info.ReturnMoney * GodRate * float32(self.cfg.LevelPer[i]) / 100.0 * float32(self.cfg.Score.EnlargeScale)
 		levelReturns = append(levelReturns, lReturn)
 	}
-	
+
 	now := time.Now().Unix()
 	var recordList []fx_models.FxOrderWaitSettlementRecord
 	recordList = append(recordList, fx_models.FxOrderWaitSettlementRecord{
@@ -69,7 +69,7 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 		logrus.Errorf("create order no this owern account wx_id[%s]", info.UnionId)
 		return fmt.Errorf("create order no this owern account wx_id[%s]", info.UnionId)
 	}
-	
+
 	var robotWx string
 	adList := strings.Split(info.AdName, ext.UNION_ID_DELIMITER)
 	if len(adList) == 2 {
@@ -115,7 +115,7 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 			Level:       int64(i),
 			CreatedAt:   now,
 		})
-		
+
 		notifyMsgs.SendMsgs = append(notifyMsgs.SendMsgs, ext.SendBaseInfo{
 			WechatNick: robotWx,
 			ChatType:   ext.CHAT_TYPE_PEOPLE,
@@ -132,7 +132,7 @@ func (self *FxOrderManager) CreateFxOrder(info *fx_models.FxOrder) error {
 		logrus.Errorf("create fx order[%d] wait settlement record list error: %v", info, err)
 		return err
 	}
-	
+
 	err = self.wrExt.SendMsg(&notifyMsgs)
 	if err != nil {
 		logrus.Errorf("send notify msg error: %v", err)

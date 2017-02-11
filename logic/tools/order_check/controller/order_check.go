@@ -6,8 +6,8 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/reechou/robot-fx/logic/tools/order_check/config"
-	"github.com/reechou/robot-fx/logic/tools/order_check/fx_models"
 	"github.com/reechou/robot-fx/logic/tools/order_check/ext"
+	"github.com/reechou/robot-fx/logic/tools/order_check/fx_models"
 	"github.com/reechou/robot-fx/utils"
 )
 
@@ -18,7 +18,7 @@ type OrderCheck struct {
 	toc *TaobaoOrderCheck
 	fom *FxOrderManager
 	ohs *OrderHttpSrv
-	
+
 	wrExt *ext.WxRobotExt
 
 	wg   sync.WaitGroup
@@ -58,13 +58,13 @@ func (ocw *OrderCheck) Stop() {
 
 func (ocw *OrderCheck) Run() {
 	go ocw.runLoop()
-	
+
 	ocw.ohs.Run()
 }
 
 func (ocw *OrderCheck) runLoop() {
 	logrus.Debugf("start run fx order check...")
-	
+
 	ocw.runCheck()
 	for {
 		select {

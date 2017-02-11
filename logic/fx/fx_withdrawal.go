@@ -204,21 +204,21 @@ func (fxr *FXRouter) confirmWithdrawalRecord(ctx context.Context, w http.Respons
 	if err := utils.ParseForm(r); err != nil {
 		return err
 	}
-	
+
 	req := &confirmWithdrawalReq{}
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		return err
 	}
-	
+
 	rsp := &FxResponse{Code: RspCodeOK}
-	
+
 	err := fxr.backend.ConfirmWithdrawal(req.Id)
 	if err != nil {
 		logrus.Errorf("confirm withdrawal record[%v] error: %v", req, err)
 		rsp.Code = RspCodeErr
 		rsp.Msg = fmt.Sprintf("confirm withdrawal record error: %v", err)
 	}
-	
+
 	return utils.WriteJSON(w, http.StatusOK, rsp)
 }
 

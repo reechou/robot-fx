@@ -238,7 +238,7 @@ func (fxr *FXRouter) getRobotList(ctx context.Context, w http.ResponseWriter, r 
 	} else {
 		rsp.Data = list
 	}
-	
+
 	return utils.WriteJSON(w, http.StatusOK, rsp)
 }
 
@@ -246,14 +246,14 @@ func (fxr *FXRouter) getAccountListOfRobot(ctx context.Context, w http.ResponseW
 	if err := utils.ParseForm(r); err != nil {
 		return err
 	}
-	
+
 	req := &getAccountListFromRobotReq{}
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		return err
 	}
-	
+
 	rsp := &FxResponse{Code: RspCodeOK}
-	
+
 	type FxAccountListFromRobotList struct {
 		Count int64              `json:"count"`
 		List  []models.FxAccount `json:"list"`
@@ -276,6 +276,6 @@ func (fxr *FXRouter) getAccountListOfRobot(ctx context.Context, w http.ResponseW
 			rsp.Data = listInfo
 		}
 	}
-	
+
 	return utils.WriteJSON(w, http.StatusOK, rsp)
 }

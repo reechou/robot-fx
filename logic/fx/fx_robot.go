@@ -88,6 +88,10 @@ func (fxr *FXRouter) robotHandleMsg(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) e
 		return fxr.robotWithdrawal(req, rsp)
 	} else if strings.Contains(req.Msg, KEYWORD_GOODS_SEARCH_URL) {
 		return fxr.robotGoodsSearch(req, rsp)
+	} else if strings.Contains(req.Msg, KEYWORD_GOODS_SEARCH_QUERY1) || strings.Contains(req.Msg, KEYWORD_GOODS_SEARCH_QUERY2) {
+		return fxr.robotGoodsSearchQuery(req, rsp)
+	} else if strings.Contains(req.Msg, KEYWORD_GOODS_SEARCH_NEXT) {
+		return fxr.robotGoodsSearchQueryNext(req, rsp)
 	}
 
 	return nil

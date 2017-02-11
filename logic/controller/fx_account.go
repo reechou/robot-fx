@@ -12,7 +12,7 @@ func (daemon *Daemon) CreateFxWxAccount(fxWxAccount *models.FxWxAccount) error {
 	if fxWxAccount.Superior == "" {
 		fxWxAccount.Superior = GodSalesman
 	}
-	
+
 	err := models.CreateFxWxAccount(fxWxAccount)
 	if err != nil {
 		logrus.Errorf("create fx wx account error: %v", err)
@@ -45,7 +45,7 @@ func (daemon *Daemon) CreateFxWxAccount(fxWxAccount *models.FxWxAccount) error {
 		models.CreateFxAccountHistoryList([]models.FxAccountHistory{h})
 		return nil
 	}
-	
+
 	return nil
 }
 
@@ -64,10 +64,9 @@ func (daemon *Daemon) UpdateFxWxAccountSignTime(fxWxAccount *models.FxWxAccount)
 		}
 		models.CreateFxAccountHistoryList([]models.FxAccountHistory{h})
 	}
-	
+
 	return affected, nil
 }
-
 
 func (daemon *Daemon) CreateFxAccount(fxAccount *models.FxAccount) (int, error) {
 	if fxAccount.Superior == "" {

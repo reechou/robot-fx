@@ -55,11 +55,11 @@ func (fxr *FXRouter) initRoutes() {
 		router.NewPostRoute("/fx/get_fx_withdrawal_error_list_from_name", fxr.getFxWithdrawalRecordErrorListFromName),
 		router.NewPostRoute("/fx/get_fx_withdrawal_all", fxr.getFxWithdrawalRecordAll),
 		router.NewPostRoute("/fx/confirm_withdrawal", fxr.confirmWithdrawalRecord),
-		
+
 		// about robot
 		router.NewPostRoute("/fx/get_robot_list", fxr.getRobotList),
 		router.NewPostRoute("/fx/get_account_from_robot", fxr.getAccountListOfRobot),
-		
+
 		router.NewOptionsRoute("/fx/get_fx_withdrawal_all", fxr.optionCall),
 		router.NewOptionsRoute("/fx/confirm_withdrawal", fxr.optionCall),
 		router.NewOptionsRoute("/fx/get_robot_list", fxr.optionCall),

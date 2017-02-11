@@ -317,7 +317,7 @@ func (fxr *FXRouter) robotGoodsSearch(req *ReceiveMsgInfo, rsp *CallbackMsgInfo)
 		return err
 	}
 	data, err := fxr.backend.TaobaoGoodsSearch(req.BaseInfo.WechatNick, req.Msg, a)
-	if err != nil {
+	if err != nil || data == nil {
 		if err == ext.ERR_DUOBB_GOODS_SEARCH_NO_DISCOUNT {
 			rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
 				WechatNick: req.BaseInfo.WechatNick,
@@ -376,6 +376,159 @@ func (fxr *FXRouter) robotGoodsSearch(req *ReceiveMsgInfo, rsp *CallbackMsgInfo)
 		})
 	}
 
+	return nil
+}
+
+func (fxr *FXRouter) robotGoodsSearchQuery(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
+	a, _, err := fxr.getReqAccount(req)
+	if err != nil {
+		logrus.Errorf("get req account error: %v", err)
+		return err
+	}
+	msg := strings.Replace(req.Msg, KEYWORD_GOODS_SEARCH_QUERY1, "", -1)
+	msg = strings.Replace(msg, KEYWORD_GOODS_SEARCH_QUERY2, "", -1)
+	if msg != a.LastSearchInfo {
+		a.LastSearchInfo = msg
+		a.LastSearchIdx = 0
+		err = models.UpdateFxAccountLastSearch(a)
+		if err != nil {
+			logrus.Errorf("update fx account last search error: %v", err)
+		}
+	}
+	data, err := fxr.backend.TaobaoGoodsSearchWithQuery(req.BaseInfo.WechatNick, a)
+	if err != nil || data == nil {
+		if err == ext.ERR_DUOBB_GOODS_SEARCH_NO_DISCOUNT {
+			rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+				WechatNick: req.BaseInfo.WechatNick,
+				ChatType:   CHAT_TYPE_PEOPLE,
+				NickName:   req.BaseInfo.FromNickName,
+				UserName:   req.BaseInfo.FromUserName,
+				MsgType:    MSG_TYPE_TEXT,
+				Msg:        fmt.Sprintf(CALLBACK_QUERY_NO_DISCOUNT, a.Name),
+			})
+			return nil
+		}
+		return err
+	}
+	var rate float32
+	if len(fxr.cfg.LevelPer) != 0 {
+		rate = float32(fxr.cfg.LevelPer[0])
+	} else {
+		rate = DEFAULT_RETURN_RATE
+	}
+	returnMoney := data.EndPrice * data.RlRate * rate / 10000.0
+
+	if data.Amount != 0.0 {
+		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+			WechatNick: req.BaseInfo.WechatNick,
+			ChatType:   CHAT_TYPE_PEOPLE,
+			NickName:   req.BaseInfo.FromNickName,
+			UserName:   req.BaseInfo.FromUserName,
+			MsgType:    MSG_TYPE_TEXT,
+			Msg: fmt.Sprintf(CALLBACK_GOODS_SEARCH_SUCCESS, a.Name, data.Title, data.ZkPrice, data.EndPrice-returnMoney,
+				data.Amount+returnMoney, data.Amount, returnMoney),
+		})
+		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+			WechatNick: req.BaseInfo.WechatNick,
+			ChatType:   CHAT_TYPE_PEOPLE,
+			NickName:   req.BaseInfo.FromNickName,
+			UserName:   req.BaseInfo.FromUserName,
+			MsgType:    MSG_TYPE_TEXT,
+			Msg:        fmt.Sprintf(CALLBACK_PLACE_ORDER, data.Token),
+		})
+	} else {
+		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+			WechatNick: req.BaseInfo.WechatNick,
+			ChatType:   CHAT_TYPE_PEOPLE,
+			NickName:   req.BaseInfo.FromNickName,
+			UserName:   req.BaseInfo.FromUserName,
+			MsgType:    MSG_TYPE_TEXT,
+			Msg:        fmt.Sprintf(CALLBACK_GOODS_SEARCH_NO_QUAN_SUCCESS, a.Name, data.Title, data.ZkPrice, data.EndPrice-returnMoney, returnMoney),
+		})
+		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+			WechatNick: req.BaseInfo.WechatNick,
+			ChatType:   CHAT_TYPE_PEOPLE,
+			NickName:   req.BaseInfo.FromNickName,
+			UserName:   req.BaseInfo.FromUserName,
+			MsgType:    MSG_TYPE_TEXT,
+			Msg:        fmt.Sprintf(CALLBACK_PLACE_ORDER, data.Token),
+		})
+	}
+
+	return nil
+}
+
+func (fxr *FXRouter) robotGoodsSearchQueryNext(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
+	a, _, err := fxr.getReqAccount(req)
+	if err != nil {
+		logrus.Errorf("get req account error: %v", err)
+		return err
+	}
+	a.LastSearchIdx++
+	err = models.UpdateFxAccountLastSearchIdx(a)
+	if err != nil {
+		logrus.Errorf("update fx account search idx error: %v", err)
+	}
+	data, err := fxr.backend.TaobaoGoodsSearchWithQuery(req.BaseInfo.WechatNick, a)
+	if err != nil || data == nil {
+		if err == ext.ERR_DUOBB_GOODS_SEARCH_NO_DISCOUNT {
+			rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+				WechatNick: req.BaseInfo.WechatNick,
+				ChatType:   CHAT_TYPE_PEOPLE,
+				NickName:   req.BaseInfo.FromNickName,
+				UserName:   req.BaseInfo.FromUserName,
+				MsgType:    MSG_TYPE_TEXT,
+				Msg:        fmt.Sprintf(CALLBACK_QUERY_NO_DISCOUNT, a.Name),
+			})
+			return nil
+		}
+		return err
+	}
+	var rate float32
+	if len(fxr.cfg.LevelPer) != 0 {
+		rate = float32(fxr.cfg.LevelPer[0])
+	} else {
+		rate = DEFAULT_RETURN_RATE
+	}
+	returnMoney := data.EndPrice * data.RlRate * rate / 10000.0
+	
+	if data.Amount != 0.0 {
+		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+			WechatNick: req.BaseInfo.WechatNick,
+			ChatType:   CHAT_TYPE_PEOPLE,
+			NickName:   req.BaseInfo.FromNickName,
+			UserName:   req.BaseInfo.FromUserName,
+			MsgType:    MSG_TYPE_TEXT,
+			Msg: fmt.Sprintf(CALLBACK_GOODS_SEARCH_SUCCESS, a.Name, data.Title, data.ZkPrice, data.EndPrice-returnMoney,
+				data.Amount+returnMoney, data.Amount, returnMoney),
+		})
+		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+			WechatNick: req.BaseInfo.WechatNick,
+			ChatType:   CHAT_TYPE_PEOPLE,
+			NickName:   req.BaseInfo.FromNickName,
+			UserName:   req.BaseInfo.FromUserName,
+			MsgType:    MSG_TYPE_TEXT,
+			Msg:        fmt.Sprintf(CALLBACK_PLACE_ORDER, data.Token),
+		})
+	} else {
+		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+			WechatNick: req.BaseInfo.WechatNick,
+			ChatType:   CHAT_TYPE_PEOPLE,
+			NickName:   req.BaseInfo.FromNickName,
+			UserName:   req.BaseInfo.FromUserName,
+			MsgType:    MSG_TYPE_TEXT,
+			Msg:        fmt.Sprintf(CALLBACK_GOODS_SEARCH_NO_QUAN_SUCCESS, a.Name, data.Title, data.ZkPrice, data.EndPrice-returnMoney, returnMoney),
+		})
+		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
+			WechatNick: req.BaseInfo.WechatNick,
+			ChatType:   CHAT_TYPE_PEOPLE,
+			NickName:   req.BaseInfo.FromNickName,
+			UserName:   req.BaseInfo.FromUserName,
+			MsgType:    MSG_TYPE_TEXT,
+			Msg:        fmt.Sprintf(CALLBACK_PLACE_ORDER, data.Token),
+		})
+	}
+	
 	return nil
 }
 

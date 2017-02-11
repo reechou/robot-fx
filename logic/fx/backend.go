@@ -59,6 +59,7 @@ type fxWithdrawalBackend interface {
 type fxAlimama interface {
 	CreateAlimamaAdzone(robot, adzone, ali string) (string, string, string, error)
 	TaobaoGoodsSearch(robot, info string, account *models.FxAccount) (*ext.GoodsSearchData, error)
+	TaobaoGoodsSearchWithQuery(robot string, account *models.FxAccount) (*ext.GoodsSearchData, error)
 }
 
 type Backend interface {

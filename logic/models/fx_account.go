@@ -22,6 +22,8 @@ type FxAccount struct {
 	MemberId       string  `xorm:"not null default '' varchar(32)"`         // 阿里妈妈用户id
 	GuideId        string  `xorm:"not null default '' varchar(32)"`         // 导购位
 	AdzoneId       string  `xorm:"not null default '' varchar(32) index"`   // 广告位
+	LastSearchInfo string  `xorm:"not null default '' varchar(256)"`
+	LastSearchIdx  int64   `xorm:"not null default 0 int"`
 	SignTime       int64   `xorm:"not null default 0 int index"`
 	Status         int64   `xorm:"not null default 0 int"`
 	CreatedAt      int64   `xorm:"not null default 0 int index"`
@@ -45,18 +47,18 @@ func CreateFxWxAccount(info *FxWxAccount) error {
 	if info.WxId == "" {
 		return fmt.Errorf("wx wxid[%s] cannot be nil.", info.WxId)
 	}
-	
+
 	now := time.Now().Unix()
 	info.CreatedAt = now
 	info.UpdatedAt = now
-	
+
 	_, err := x.Insert(info)
 	if err != nil {
 		logrus.Errorf("create fx wx account error: %v", err)
 		return err
 	}
 	logrus.Infof("create fx wx account from wxid[%s] success.", info.WxId)
-	
+
 	return nil
 }
 
@@ -203,6 +205,18 @@ func CreateFxAccount(info *FxAccount) (err error) {
 	logrus.Infof("create fx account from wx_unionid[%s] success.", info.UnionId)
 
 	return
+}
+
+func UpdateFxAccountLastSearch(info *FxAccount) error {
+	info.UpdatedAt = time.Now().Unix()
+	_, err := x.Cols("last_search_info", "last_search_idx", "updated_at").Update(info, &FxAccount{UnionId: info.UnionId})
+	return err
+}
+
+func UpdateFxAccountLastSearchIdx(info *FxAccount) error {
+	info.UpdatedAt = time.Now().Unix()
+	_, err := x.Cols("last_search_idx", "updated_at").Update(info, &FxAccount{UnionId: info.UnionId})
+	return err
 }
 
 func UpdateFxAccountBaseInfo(info *FxAccount) error {

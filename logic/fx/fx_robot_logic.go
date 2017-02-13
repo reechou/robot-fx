@@ -434,7 +434,7 @@ func (fxr *FXRouter) robotGoodsSearchQuery(req *ReceiveMsgInfo, rsp *CallbackMsg
 			NickName:   req.BaseInfo.FromNickName,
 			UserName:   req.BaseInfo.FromUserName,
 			MsgType:    MSG_TYPE_TEXT,
-			Msg:        fmt.Sprintf(CALLBACK_PLACE_ORDER, data.Token),
+			Msg:        fmt.Sprintf(CALLBACK_QUERY_PLACE_ORDER, data.Token),
 		})
 	} else {
 		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
@@ -451,7 +451,7 @@ func (fxr *FXRouter) robotGoodsSearchQuery(req *ReceiveMsgInfo, rsp *CallbackMsg
 			NickName:   req.BaseInfo.FromNickName,
 			UserName:   req.BaseInfo.FromUserName,
 			MsgType:    MSG_TYPE_TEXT,
-			Msg:        fmt.Sprintf(CALLBACK_PLACE_ORDER, data.Token),
+			Msg:        fmt.Sprintf(CALLBACK_QUERY_PLACE_ORDER, data.Token),
 		})
 	}
 
@@ -508,7 +508,7 @@ func (fxr *FXRouter) robotGoodsSearchQueryNext(req *ReceiveMsgInfo, rsp *Callbac
 			NickName:   req.BaseInfo.FromNickName,
 			UserName:   req.BaseInfo.FromUserName,
 			MsgType:    MSG_TYPE_TEXT,
-			Msg:        fmt.Sprintf(CALLBACK_PLACE_ORDER, data.Token),
+			Msg:        fmt.Sprintf(CALLBACK_QUERY_PLACE_ORDER, data.Token),
 		})
 	} else {
 		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
@@ -525,7 +525,7 @@ func (fxr *FXRouter) robotGoodsSearchQueryNext(req *ReceiveMsgInfo, rsp *Callbac
 			NickName:   req.BaseInfo.FromNickName,
 			UserName:   req.BaseInfo.FromUserName,
 			MsgType:    MSG_TYPE_TEXT,
-			Msg:        fmt.Sprintf(CALLBACK_PLACE_ORDER, data.Token),
+			Msg:        fmt.Sprintf(CALLBACK_QUERY_PLACE_ORDER, data.Token),
 		})
 	}
 	

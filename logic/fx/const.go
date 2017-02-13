@@ -28,12 +28,13 @@ const (
 	KEYWORD_GOODS_SEARCH_QUERY2 = "找"
 	KEYWORD_GOODS_SEARCH_NEXT   = "下一个"
 
-	KEYWORD_USER_INFO_ID    = "1"
-	KEYWORD_SIGN_ID         = "2"
-	KEYWORD_LOWER_PEOPLE_ID = "3"
-	KEYWORD_ORDER_INFO_ID   = "4"
-	KEYWORD_WITHDRAWAL_ID   = "5"
-	KEYWORD_HELP_ID         = "6"
+	KEYWORD_USER_INFO_ID         = "1"
+	KEYWORD_SIGN_ID              = "2"
+	KEYWORD_LOWER_PEOPLE_ID      = "3"
+	KEYWORD_ORDER_INFO_ID        = "4"
+	KEYWORD_WITHDRAWAL_ID        = "5"
+	KEYWORD_HELP_ID              = "6"
+	KEYWORD_GOODS_SEARCH_NEXT_ID = "n"
 )
 
 const (
@@ -45,6 +46,8 @@ const (
 	CALLBACK_HELP = "帮助:\n* 回复 '个人信息' 或 '1' :\n查询个人信息，积分、订单总数等\n* 回复 '签到' 或 '2' :\n签到获取积分,每天只能签到一次\n" +
 		"* 回复 '下线查询' 或 '3' :\n查询下线的总人数以及下线列表\n* 回复 '订单查询' 或 '4' :\n查询最近的订单记录以及具体信息\n" +
 		"* 回复 '提现' 或 '5' :\n将所有可提现的积分兑换为等值的金额到您的账户上\n" +
+		"* 回复 '买 xxx' 或 '找 xxx' :\n根据关键字找商品,例如: 找毛衣\n" +
+		"* 回复 '下一个' 或 'n' :\n若找到的商品不满意,可发送寻找下一个商品\n" +
 		"\n点击下方链接可了解如何下单得返现和下线积分规则. http://t.cn/RJwZCu0"
 	CALLBACK_CREATE_ACCOUNT_SUCCESS        = "创建账户成功."
 	CALLBACK_CREATE_ACCOUNT_WITHOUT_WECHAT = "创建账户成功,但未绑定微信号. 不绑定微信,会导致订单返积分不成功.\n绑定命令(范例): 绑定微信号xxx"

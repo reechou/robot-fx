@@ -180,7 +180,7 @@ func GetFxAccountCountFromRobot(robot string) (int64, error) {
 
 func GetFxAccountListFromRobot(robot string, offset, num int64) ([]FxAccount, error) {
 	var list []FxAccount
-	err := x.Where("robot_wx = ?", robot).Limit(int(num), int(offset)).Find(&list)
+	err := x.Where("robot_wx = ?", robot).Desc("created_at").Limit(int(num), int(offset)).Find(&list)
 	if err != nil {
 		logrus.Errorf("get fx account list from robox error: %v", err)
 		return nil, err

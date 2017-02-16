@@ -72,25 +72,26 @@ func (fxr *FXRouter) robotCall(ctx context.Context, w http.ResponseWriter, r *ht
 }
 
 func (fxr *FXRouter) robotHandleMsg(req *ReceiveMsgInfo, rsp *CallbackMsgInfo) error {
-	if strings.Contains(req.Msg, KEYWORD_HELP) || req.Msg == KEYWORD_HELP_ID {
+	req.Msg = strings.Replace(req.Msg, " ", "", -1)
+	if req.Msg == KEYWORD_HELP || req.Msg == KEYWORD_HELP_ID {
 		return fxr.robotHelp(req, rsp)
-	} else if strings.Contains(req.Msg, KEYWORD_USER_INFO) || req.Msg == KEYWORD_USER_INFO_ID {
+	} else if req.Msg == KEYWORD_USER_INFO || req.Msg == KEYWORD_USER_INFO_ID {
 		return fxr.robotUserInfo(req, rsp)
-	} else if strings.Contains(req.Msg, KEYWORD_ORDER_INFO) || req.Msg == KEYWORD_ORDER_INFO_ID {
+	} else if req.Msg == KEYWORD_ORDER_INFO || req.Msg == KEYWORD_ORDER_INFO_ID {
 		return fxr.robotOrderList(req, rsp)
 	} else if strings.Contains(req.Msg, KEYWORD_BIND_WECHAT) {
 		return fxr.robotBindWechat(req, rsp)
-	} else if strings.Contains(req.Msg, KEYWORD_SIGN) || req.Msg == KEYWORD_SIGN_ID {
+	} else if req.Msg == KEYWORD_SIGN || req.Msg == KEYWORD_SIGN_ID {
 		return fxr.robotSign(req, rsp)
-	} else if strings.Contains(req.Msg, KEYWORD_LOWER_PEOPLE) || req.Msg == KEYWORD_LOWER_PEOPLE_ID {
+	} else if req.Msg == KEYWORD_LOWER_PEOPLE || req.Msg == KEYWORD_LOWER_PEOPLE_ID {
 		return fxr.robotGetLowerPeople(req, rsp)
-	} else if strings.Contains(req.Msg, KEYWORD_WITHDRAWAL) || req.Msg == KEYWORD_WITHDRAWAL_ID {
+	} else if req.Msg == KEYWORD_WITHDRAWAL || req.Msg == KEYWORD_WITHDRAWAL_ID {
 		return fxr.robotWithdrawal(req, rsp)
 	} else if strings.Contains(req.Msg, KEYWORD_GOODS_SEARCH_URL) {
 		return fxr.robotGoodsSearch(req, rsp)
 	} else if strings.Contains(req.Msg, KEYWORD_GOODS_SEARCH_QUERY1) || strings.Contains(req.Msg, KEYWORD_GOODS_SEARCH_QUERY2) {
 		return fxr.robotGoodsSearchQuery(req, rsp)
-	} else if strings.Contains(req.Msg, KEYWORD_GOODS_SEARCH_NEXT) || strings.Contains(req.Msg, KEYWORD_GOODS_SEARCH_NEXT_ID) {
+	} else if strings.Contains(req.Msg, KEYWORD_GOODS_SEARCH_NEXT) || strings.Contains(req.Msg, KEYWORD_GOODS_SEARCH_NEXT2) || strings.Contains(req.Msg, KEYWORD_GOODS_SEARCH_NEXT_ID) {
 		return fxr.robotGoodsSearchQueryNext(req, rsp)
 	}
 

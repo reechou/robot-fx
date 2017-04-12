@@ -491,7 +491,7 @@ func (fxr *FXRouter) robotGoodsSearchQueryNext(req *ReceiveMsgInfo, rsp *Callbac
 		rate = DEFAULT_RETURN_RATE
 	}
 	returnMoney := data.EndPrice * data.RlRate * rate / 10000.0
-	
+
 	if data.Amount != 0.0 {
 		rsp.CallbackMsgs = append(rsp.CallbackMsgs, SendBaseInfo{
 			WechatNick: req.BaseInfo.WechatNick,
@@ -528,7 +528,7 @@ func (fxr *FXRouter) robotGoodsSearchQueryNext(req *ReceiveMsgInfo, rsp *Callbac
 			Msg:        fmt.Sprintf(CALLBACK_QUERY_PLACE_ORDER, data.Token),
 		})
 	}
-	
+
 	return nil
 }
 

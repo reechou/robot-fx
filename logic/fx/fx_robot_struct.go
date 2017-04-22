@@ -21,13 +21,21 @@ type CreateRobotAlimamaReq struct {
 }
 
 type BaseInfo struct {
-	Uin           string `json:"uin"`
-	WechatNick    string `json:"wechatNick,omitempty"` // 微信昵称
-	ReceiveEvent  string `json:"receiveEvent,omitempty"`
-	FromType      string `json:"fromType,omitempty"`
-	FromUserName  string `json:"fromUserName,omitempty"`
-	FromNickName  string `json:"fromNickName,omitempty"`
-	FromGroupName string `json:"fromGroupName,omitempty"`
+	Uin                string `json:"uin"`
+	UserName           string `json:"userName,omitempty"`   // 机器人username
+	WechatNick         string `json:"wechatNick,omitempty"` // 微信昵称
+	ReceiveEvent       string `json:"receiveEvent,omitempty"`
+	FromType           string `json:"fromType,omitempty"`
+	FromUserName       string `json:"fromUserName,omitempty"`       // 群或者好友username
+	FromMemberUserName string `json:"fromMemberUserName,omitempty"` // 群里用户username
+	FromNickName       string `json:"fromNickName,omitempty"`       // 好友或者群里用户昵称
+	FromGroupName      string `json:"fromGroupName,omitempty"`      // 群名
+}
+
+type BaseToUserInfo struct {
+	ToUserName  string `json:"toUserName,omitempty"`
+	ToNickName  string `json:"toNickName,omitempty"`
+	ToGroupName string `json:"toGroupName,omitempty"`
 }
 
 type SendBaseInfo struct {
@@ -50,20 +58,26 @@ type AddFriend struct {
 	UserWxid     string `json:"userWxid,omitempty"`
 	UserWechat   string `json:"userWechat,omitempty"`
 	UserNick     string `json:"userNick,omitempty"`
+	UserCity     string `json:"userCity,omitempty"`
+	UserSex      int    `json:"userSex,omitempty"`
 	Ticket       string `json:"-"` // for verify
 }
 
 type ReceiveMsgInfo struct {
-	BaseInfo  `json:"baseInfo,omitempty"`
-	AddFriend `json:"addFriend,omitempty"`
-
-	Msg string `json:"msg,omitempty"`
+	BaseInfo       `json:"baseInfo,omitempty"`
+	BaseToUserInfo `json:"baseToUserIno,omitempty"`
+	AddFriend      `json:"addFriend,omitempty"`
+	
+	MsgType        string `json:"msgType,omitempty"`
+	Msg            string `json:"msg,omitempty"`
+	MediaTempUrl   string `json:"mediaTempUrl,omitempty"`
+	GroupMemberNum int    `json:"groupMemberNum,omitempty"`
 }
 
 type CallbackMsgInfo struct {
 	RetResponse `json:"retResponse,omitempty"`
 	BaseInfo    `json:"baseInfo,omitempty"`
-
+	
 	CallbackMsgs []SendBaseInfo `json:"msg,omitempty"`
 }
 
